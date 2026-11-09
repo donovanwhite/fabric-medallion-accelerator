@@ -1,0 +1,70 @@
+{
+  "properties": {
+    "description": "Reusable pinned metadata page. Enable only after worker and recovery integration gates.",
+    "parameters": {
+      "p_run_id": {"type": "String", "defaultValue": ""},
+      "p_after_ordinal": {"type": "Int", "defaultValue": 0},
+      "p_page_size": {"type": "Int", "defaultValue": 1000}
+    },
+    "activities": [
+      {
+        "name": "lookup_copy_tasks",
+        "type": "Lookup",
+        "dependsOn": [],
+        "policy": {"timeout": "0.00:10:00", "retry": 0, "secureInput": true, "secureOutput": true},
+        "typeProperties": {
+          "firstRowOnly": false,
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderStoredProcedureName": "ctl.usp_copy_task_page",
+            "storedProcedureParameters": {
+              "run_id": {"type": "String", "value": {"value": "@pipeline().parameters.p_run_id", "type": "Expression"}},
+              "after_ordinal": {"type": "Int32", "value": {"value": "@pipeline().parameters.p_after_ordinal", "type": "Expression"}},
+              "page_size": {"type": "Int32", "value": {"value": "@pipeline().parameters.p_page_size", "type": "Expression"}}
+            },
+            "queryTimeout": "00:05:00",
+            "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [], "type": "FabricSqlDatabaseTable", "schema": [], "typeProperties": {},
+              "connectionSettings": {
+                "name": "conn_orchestrator_sql",
+                "properties": {
+                  "annotations": [], "type": "FabricSqlDatabase",
+                  "typeProperties": {"workspaceId": "__WORKSPACE_ID__", "artifactId": "__CONTROL_DATABASE_ID__"},
+                  "externalReferences": {"connection": "__CONTROL_CONNECTION_ID__"}
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "copy_metadata_page",
+        "type": "ForEach",
+        "dependsOn": [{"activity": "lookup_copy_tasks", "dependencyConditions": ["Succeeded"]}],
+        "typeProperties": {
+          "items": {"value": "@activity('lookup_copy_tasks').output.value", "type": "Expression"},
+          "isSequential": true,
+          "activities": [
+            {
+              "name": "select_source_connector",
+              "type": "Switch",
+              "dependsOn": [],
+              "typeProperties": {
+                "on": {"value": "@item().connector_type", "type": "Expression"},
+                "cases": [],
+                "defaultActivities": [
+                  {
+                    "name": "reject_unverified_connector",
+                    "type": "Fail",
+                    "typeProperties": {"errorCode": "UNSUPPORTED_CONNECTOR", "message": "No verified connector adapter is enabled for this pinned source type."}
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

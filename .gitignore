@@ -1,0 +1,31 @@
+# Local editor settings
+.vscode/
+
+# Private local use cases
+/use_cases/treasury/
+
+# Local source specifications
+/specifications/
+/docs/specifications/
+/use_cases/*/docling_specifications/**
+!/use_cases/*/docling_specifications/README.md
+!/use_cases/*/docling_specifications/extract_specifications.py
+/use_cases/*/supporting docs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+connection.local.json
+
+# Operating system files
+Thumbs.db
+.DS_Store

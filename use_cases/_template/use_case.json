@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "<case_id>",
+  "adapter": "compiled",
+  "baseline_version": "1.1.0",
+  "resources": {
+    "bronze_silver": "<lh_brz_slv_case>",
+    "gold": "<lh_gld_case>",
+    "control_database": "db_orchestrator",
+    "item_prefix": "<case_id>"
+  },
+  "inputs": {
+    "source_registry": null,
+    "gold_profile": null,
+    "source_rules": "generated/extensions/source_rules.py",
+    "gold_rules": "generated/extensions/gold_rules.py",
+    "compiled_metadata": "generated/metadata/definition.json"
+  },
+  "documents": {
+    "requirements": "requirements/requirements.md",
+    "sources": "specifications/source_contract.md",
+    "gold": "specifications/gold_contract.md",
+    "plan": "plans/plan.md"
+  }
+}

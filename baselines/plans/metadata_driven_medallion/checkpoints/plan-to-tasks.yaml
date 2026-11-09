@@ -1,0 +1,394 @@
+# Planning traceability only; implementation evidence is in tasks-to-impl.yaml.
+metadata:
+  generated: "2026-11-06"
+  source_plan: 'docs\plans\metadata-driven-medallion\plan.md'
+  target_tasks: 'docs\plans\metadata-driven-medallion\plan.md#implementation-steps'
+  implementation_status: "in_progress"
+
+summary:
+  total_plan_items: 22
+  covered_plan_items: 22
+  missing_plan_items: 0
+  coverage_percentage: 100.0
+  total_tasks_generated: 64
+  orphan_tasks: 0
+
+phases:
+  - phase_id: "Phase-1"
+    phase_name: "Setup, fidelity baseline and platform proof"
+    items:
+      - item_id: "1.1"
+        description: "Freeze the brownfield contract"
+        tasks:
+          - task_id: "T001"
+            description: "Create the source and Gold fidelity baseline fixture"
+            depends_on: []
+          - task_id: "T002"
+            description: "Extend baseline parity assertions"
+            depends_on: ["T001"]
+      - item_id: "1.2"
+        description: "Prove the platform boundaries before reliance"
+        tasks:
+          - task_id: "T003"
+            description: "Add offline checks and opt-in capability probes"
+            depends_on: ["T002"]
+          - task_id: "T004"
+            description: "Execute bounded capability proof after approval"
+            depends_on: ["T003"]
+            approval_gate: "A1"
+  - phase_id: "Phase-2"
+    phase_name: "Foundational metadata and bootstrap import"
+    items:
+      - item_id: "2.1"
+        description: "Add typed metadata and the SQL control schema"
+        tasks:
+          - task_id: "T005"
+            description: "Add typed metadata and validation"
+            depends_on: ["T002"]
+          - task_id: "T006"
+            description: "Add additive configuration and operational DDL"
+            depends_on: ["T005"]
+          - task_id: "T007"
+            description: "Add immutable activation and read-only version procedures"
+            depends_on: ["T006"]
+          - task_id: "T009"
+            description: "Add metadata, seed and SQL contract tests"
+            depends_on: ["T007", "T008"]
+      - item_id: "2.2"
+        description: "Seed existing contracts without creating two authorities"
+        tasks:
+          - task_id: "T008"
+            description: "Compile the initial metadata version from current contracts"
+            depends_on: ["T005", "T007"]
+          - task_id: "T009"
+            description: "Add metadata, seed and SQL contract tests"
+            depends_on: ["T007", "T008"]
+        notes: "T009 deliberately covers plan items 2.1 and 2.2; count it once."
+  - phase_id: "Phase-3"
+    phase_name: "Run planning, immutable manifests and execution control"
+    items:
+      - item_id: "3.1"
+        description: "Compile and pin complete execution plans"
+        tasks:
+          - task_id: "T010"
+            description: "Compile execution plans and read-only previews"
+            depends_on: ["T008", "T009"]
+          - task_id: "T011"
+            description: "Verify immutable run snapshots and references"
+            depends_on: ["T010"]
+          - task_id: "T012"
+            description: "Test pinning, closure, paging and collision handling"
+            depends_on: ["T010", "T011"]
+      - item_id: "3.2"
+        description: "Make retries, leases and audit reconciliation explicit"
+        tasks:
+          - task_id: "T013"
+            description: "Add run, lease, fenced-attempt and result procedures"
+            depends_on: ["T007", "T012"]
+          - task_id: "T014"
+            description: "Implement result envelopes and safe job recovery"
+            depends_on: ["T011", "T013"]
+          - task_id: "T015"
+            description: "Test concurrency, uncertainty, idempotency and redaction"
+            depends_on: ["T013", "T014"]
+  - phase_id: "Phase-4"
+    phase_name: "Metadata-driven Bronze through ForEach and Copy"
+    items:
+      - item_id: "4.1"
+        description: "Replace source arrays with runtime SQL task selection"
+        tasks:
+          - task_id: "T016"
+            description: "Add metadata-driven pipeline and Copy generators"
+            depends_on: ["T010", "T015"]
+          - task_id: "T017"
+            description: "Add the master and bounded batch Copy templates"
+            depends_on: ["T011", "T013", "T016"]
+          - task_id: "T018"
+            description: "Test runtime bindings, paging and secure Copy behaviour"
+            depends_on: ["T016", "T017"]
+      - item_id: "4.2"
+        description: "Support file-source shape and arrival readiness"
+        tasks:
+          - task_id: "T019"
+            description: "Add distinct reusable FTP and SFTP Copy adapters"
+            depends_on: ["T017"]
+          - task_id: "T020"
+            description: "Validate complete arrivals and multi-file membership"
+            depends_on: ["T011", "T019"]
+          - task_id: "T021"
+            description: "Test file transport and readiness cases"
+            depends_on: ["T019", "T020"]
+      - item_id: "4.3"
+        description: "Resolve new and historical Bronze from manifests"
+        tasks:
+          - task_id: "T022"
+            description: "Adapt ingestion context, paths and inventory to manifests"
+            depends_on: ["T011", "T018"]
+          - task_id: "T023"
+            description: "Test historical replay, strict parsing and tamper rejection"
+            depends_on: ["T021", "T022"]
+  - phase_id: "Phase-5"
+    phase_name: "Generic Silver and dependency-aware notebook execution"
+    items:
+      - item_id: "5.1"
+        description: "Drive existing Silver algorithms through metadata"
+        tasks:
+          - task_id: "T024"
+            description: "Extract specialist rules and add metadata rule dispatch"
+            depends_on: ["T008", "T023"]
+          - task_id: "T025"
+            description: "Add object-scoped processing with unchanged Silver semantics"
+            depends_on: ["T022", "T024"]
+          - task_id: "T026"
+            description: "Test rule parity and append-only history behaviour"
+            depends_on: ["T024", "T025"]
+      - item_id: "5.2"
+        description: "Generate and execute the Silver DAG safely"
+        tasks:
+          - task_id: "T027"
+            description: "Build and validate bounded Silver DAGs"
+            depends_on: ["T014", "T026"]
+          - task_id: "T028"
+            description: "Generate generic preparation, Silver parent and worker notebooks"
+            depends_on: ["T027"]
+          - task_id: "T029"
+            description: "Adapt source-wide validation, idempotent commit and retention"
+            depends_on: ["T025", "T027"]
+          - task_id: "T030"
+            description: "Test DAG overlap, serialization, failure and binding contracts"
+            depends_on: ["T028", "T029"]
+  - phase_id: "Phase-6"
+    phase_name: "Governed Gold rules and Gold DAG"
+    items:
+      - item_id: "6.1"
+        description: "Load explicit Gold contracts from the pinned version"
+        tasks:
+          - task_id: "T031"
+            description: "Separate Gold metadata seed export from runtime configuration"
+            depends_on: ["T008", "T030"]
+          - task_id: "T032"
+            description: "Read pinned Gold inputs and rules without semantic drift"
+            depends_on: ["T022", "T031"]
+          - task_id: "T033"
+            description: "Test metadata-to-current-Gold parity"
+            depends_on: ["T031", "T032"]
+      - item_id: "6.2"
+        description: "Split Gold work without losing release consistency"
+        tasks:
+          - task_id: "T034"
+            description: "Separate Gold preparation, object build and release finalisation"
+            depends_on: ["T014", "T033"]
+          - task_id: "T035"
+            description: "Add Gold DAG and Lakehouse-bound generic workers"
+            depends_on: ["T028", "T034"]
+          - task_id: "T036"
+            description: "Test temporal inputs, correction, retry and release consistency"
+            depends_on: ["T034", "T035"]
+      - item_id: "6.3"
+        description: "Register specialist transformations without a new pipeline"
+        tasks:
+          - task_id: "T037"
+            description: "Add approved transformation registration and dispatch"
+            depends_on: ["T010", "T035"]
+          - task_id: "T038"
+            description: "Test generic and specialist transformation contracts"
+            depends_on: ["T036", "T037"]
+  - phase_id: "Phase-7"
+    phase_name: "MLV lifecycle, refresh and constraint evidence"
+    items:
+      - item_id: "7.1"
+        description: "Separate definition changes from routine refresh"
+        tasks:
+          - task_id: "T039"
+            description: "Make MLV definition registration version-aware"
+            depends_on: ["T031", "T038"]
+          - task_id: "T040"
+            description: "Add supported MLV refresh and job recovery controls"
+            depends_on: ["T014", "T039"]
+          - task_id: "T041"
+            description: "Test lifecycle, conflicts, fallback and aggregate reconciliation"
+            depends_on: ["T039", "T040"]
+      - item_id: "7.2"
+        description: "Enforce constraints without losing rejection evidence"
+        tasks:
+          - task_id: "T042"
+            description: "Evaluate declared Gold and MLV constraints with evidence"
+            depends_on: ["T024", "T039"]
+          - task_id: "T043"
+            description: "Test constraint/exclusion failures and withheld publication"
+            depends_on: ["T041", "T042"]
+  - phase_id: "Phase-8"
+    phase_name: "Physical layout through one flag"
+    items:
+      - item_id: "8.1"
+        description: "Apply selected layout to supported materialisations"
+        tasks:
+          - task_id: "T044"
+            description: "Validate and plan one selected layout strategy"
+            depends_on: ["T005", "T043"]
+          - task_id: "T045"
+            description: "Integrate compatible layout planning with target creation"
+            depends_on: ["T025", "T034", "T044"]
+          - task_id: "T046"
+            description: "Test both selectors and reject unsupported layout combinations"
+            depends_on: ["T044", "T045"]
+      - item_id: "8.2"
+        description: "Make layout migration and maintenance separate operations"
+        tasks:
+          - task_id: "T047"
+            description: "Add preview and explicitly gated layout operations"
+            depends_on: ["T014", "T045", "T046"]
+          - task_id: "T048"
+            description: "Test non-destructive layout migration and history preservation"
+            depends_on: ["T046", "T047"]
+  - phase_id: "Phase-9"
+    phase_name: "Installer, generation and operational documentation"
+    items:
+      - item_id: "9.1"
+        description: "Bootstrap the control plane and guide connection setup"
+        tasks:
+          - task_id: "T049"
+            description: "Compile the orchestrator SQL project independently of source seeds"
+            depends_on: ["T007", "T008", "T013"]
+          - task_id: "T050"
+            description: "Add staged bootstrap, resume and safe activation"
+            depends_on: ["T015", "T018", "T021", "T030", "T038", "T043", "T048", "T049"]
+          - task_id: "T051"
+            description: "Add CLI and PowerShell connection recheck and version controls"
+            depends_on: ["T050"]
+          - task_id: "T052"
+            description: "Test guided and noninteractive installer safety"
+            depends_on: ["T050", "T051"]
+      - item_id: "9.2"
+        description: "Generate reusable assets and retire runtime duplication"
+        tasks:
+          - task_id: "T053"
+            description: "Generate shared runtime notebooks and derived inventory"
+            depends_on: ["T028", "T035", "T039", "T045", "T052"]
+          - task_id: "T054"
+            description: "Test generic asset freshness and authority boundaries"
+            depends_on: ["T053"]
+          - task_id: "T055"
+            description: "Update activation, replay, layout and connection procedures"
+            depends_on: ["T054"]
+  - phase_id: "Phase-10"
+    phase_name: "End-to-end evidence, rollback and controlled cutover"
+    items:
+      - item_id: "10.1"
+        description: "Execute acceptance in an approved isolated target"
+        tasks:
+          - task_id: "T056"
+            description: "Add the opt-in end-to-end execution driver"
+            depends_on: ["T004", "T052", "T054"]
+          - task_id: "T057"
+            description: "Prove staging bootstrap and runtime metadata changes"
+            depends_on: ["T056"]
+            approval_gate: "A2"
+          - task_id: "T058"
+            description: "Prove Silver, DAG, Gold and MLV recovery and parity"
+            depends_on: ["T030", "T036", "T043", "T057"]
+            approval_gate: "A2"
+          - task_id: "T059"
+            description: "Prove controlled FTP and SFTP Copy execution"
+            depends_on: ["T004", "T021", "T057"]
+            approval_gate: "A2"
+          - task_id: "T060"
+            description: "Prove Fabric layout, consumer and MLV compatibility"
+            depends_on: ["T048", "T057"]
+            approval_gate: "A2"
+          - task_id: "T061"
+            description: "Produce the complete acceptance and capacity evidence"
+            depends_on: ["T058", "T059", "T060"]
+      - item_id: "10.2"
+        description: "Rehearse rollback and cut over only after approval"
+        tasks:
+          - task_id: "T062"
+            description: "Rehearse metadata, worker and serving rollback without data deletion"
+            depends_on: ["T052", "T055", "T061"]
+            approval_gate: "A2"
+          - task_id: "T063"
+            description: "Perform reviewed cutover with no overlapping legacy writers"
+            depends_on: ["T061", "T062"]
+            approval_gate: "A3"
+          - task_id: "T064"
+            description: "Finalise procedures and retain separate irreversible-action gates"
+            depends_on: ["T063"]
+        notes: "A4 remains separately required for destructive, permission or physical-rewrite actions; none is implicitly scheduled."
+
+missing_plan_items: []
+orphan_tasks: []
+
+upstream_trace:
+  - plan_item: "1.1"
+    source_requirements: ["REQ-012", "REQ-019", "REQ-054", "REQ-060"]
+    tasks: ["T001", "T002"]
+  - plan_item: "1.2"
+    source_requirements: ["REQ-005", "REQ-007", "REQ-035", "REQ-041", "REQ-047", "REQ-058"]
+    tasks: ["T003", "T004"]
+  - plan_item: "2.1"
+    source_requirements: ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005", "REQ-008", "REQ-014", "REQ-023", "REQ-038", "REQ-051", "REQ-055", "REQ-057"]
+    tasks: ["T005", "T006", "T007", "T009"]
+  - plan_item: "2.2"
+    source_requirements: ["REQ-020", "REQ-026", "REQ-034", "REQ-053"]
+    tasks: ["T008", "T009"]
+  - plan_item: "3.1"
+    source_requirements: ["REQ-001", "REQ-002", "REQ-003", "REQ-006", "REQ-013", "REQ-014", "REQ-017", "REQ-048"]
+    tasks: ["T010", "T011", "T012"]
+  - plan_item: "3.2"
+    source_requirements: ["REQ-018", "REQ-025", "REQ-046", "REQ-049", "REQ-050", "REQ-055", "REQ-056", "REQ-059"]
+    tasks: ["T013", "T014", "T015"]
+  - plan_item: "4.1"
+    source_requirements: ["REQ-009", "REQ-010", "REQ-012", "REQ-013", "REQ-044"]
+    tasks: ["T016", "T017", "T018"]
+  - plan_item: "4.2"
+    source_requirements: ["REQ-009", "REQ-011", "REQ-016"]
+    tasks: ["T019", "T020", "T021"]
+  - plan_item: "4.3"
+    source_requirements: ["REQ-012", "REQ-015", "REQ-016", "REQ-017", "REQ-018", "REQ-019"]
+    tasks: ["T022", "T023"]
+  - plan_item: "5.1"
+    source_requirements: ["REQ-020", "REQ-021", "REQ-022", "REQ-023", "REQ-024", "REQ-026", "REQ-056"]
+    tasks: ["T024", "T025", "T026"]
+  - plan_item: "5.2"
+    source_requirements: ["REQ-004", "REQ-025", "REQ-031", "REQ-045", "REQ-046", "REQ-047", "REQ-049", "REQ-058"]
+    tasks: ["T027", "T028", "T029", "T030"]
+  - plan_item: "6.1"
+    source_requirements: ["REQ-027", "REQ-028", "REQ-029", "REQ-030", "REQ-033", "REQ-060"]
+    tasks: ["T031", "T032", "T033"]
+  - plan_item: "6.2"
+    source_requirements: ["REQ-029", "REQ-030", "REQ-031", "REQ-032", "REQ-036", "REQ-045", "REQ-047", "REQ-049"]
+    tasks: ["T034", "T035", "T036"]
+  - plan_item: "6.3"
+    source_requirements: ["REQ-027", "REQ-028", "REQ-048", "REQ-057"]
+    tasks: ["T037", "T038"]
+  - plan_item: "7.1"
+    source_requirements: ["REQ-032", "REQ-034", "REQ-035", "REQ-036", "REQ-037", "REQ-050", "REQ-058"]
+    tasks: ["T039", "T040", "T041"]
+  - plan_item: "7.2"
+    source_requirements: ["REQ-024", "REQ-038", "REQ-056"]
+    tasks: ["T042", "T043"]
+  - plan_item: "8.1"
+    source_requirements: ["REQ-039", "REQ-040", "REQ-041", "REQ-042"]
+    tasks: ["T044", "T045", "T046"]
+  - plan_item: "8.2"
+    source_requirements: ["REQ-042", "REQ-043", "REQ-059"]
+    tasks: ["T047", "T048"]
+  - plan_item: "9.1"
+    source_requirements: ["REQ-007", "REQ-008", "REQ-050", "REQ-051", "REQ-052", "REQ-057"]
+    tasks: ["T049", "T050", "T051", "T052"]
+  - plan_item: "9.2"
+    source_requirements: ["REQ-001", "REQ-044", "REQ-048", "REQ-053"]
+    tasks: ["T053", "T054", "T055"]
+  - plan_item: "10.1"
+    source_requirements: ["REQ-022", "REQ-037", "REQ-054", "REQ-058"]
+    tasks: ["T056", "T057", "T058", "T059", "T060", "T061"]
+  - plan_item: "10.2"
+    source_requirements: ["REQ-006", "REQ-033", "REQ-043", "REQ-054", "REQ-059", "REQ-060"]
+    tasks: ["T062", "T063", "T064"]
+
+validation:
+  passed: true
+  scope: "Plan coverage, task references and immediate dependency structure only"
+  errors: []
+  warnings: []
+  runtime_acceptance: "not_executed"

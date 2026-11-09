@@ -1,0 +1,54 @@
+{
+  "name": "copy_fabric_sql_database_to_bronze",
+  "type": "Copy",
+  "dependsOn": [],
+  "policy": {"timeout": "0.12:00:00", "retry": 0, "secureInput": true, "secureOutput": true},
+  "typeProperties": {
+    "source": {
+      "type": "FabricSqlDatabaseSource",
+      "sqlReaderQuery": {"value": "@item().sql_query", "type": "Expression"},
+      "queryTimeout": "02:00:00",
+      "partitionOption": "None",
+      "datasetSettings": {
+        "annotations": [], "type": "FabricSqlDatabaseTable", "schema": [], "typeProperties": {},
+        "connectionSettings": {
+          "name": "metadata_fabric_sql_source",
+          "properties": {
+            "annotations": [], "type": "FabricSqlDatabase",
+            "typeProperties": {"workspaceId": "@item().source_workspace_id", "artifactId": "@item().source_artifact_id"},
+            "externalReferences": {"connection": "@item().connection_id"}
+          }
+        }
+      }
+    },
+    "sink": {
+      "type": "DelimitedTextSink",
+      "storeSettings": {"type": "LakehouseWriteSettings"},
+      "formatSettings": {"type": "DelimitedTextWriteSettings", "quoteAllText": true, "fileExtension": ".csv"},
+      "datasetSettings": {
+        "annotations": [], "type": "DelimitedText", "schema": [],
+        "typeProperties": {
+          "location": {
+            "type": "LakehouseLocation",
+            "folderPath": {"value": "@item().folder_path", "type": "Expression"},
+            "fileName": {"value": "@item().file_name", "type": "Expression"}
+          },
+          "columnDelimiter": ",", "escapeChar": "\\", "firstRowAsHeader": true, "quoteChar": "\""
+        },
+        "linkedService": {
+          "name": "metadata_bronze_lakehouse",
+          "properties": {
+            "annotations": [], "type": "Lakehouse",
+            "typeProperties": {"workspaceId": "__WORKSPACE_ID__", "artifactId": "__BRONZE_LAKEHOUSE_ID__", "rootFolder": "Files"}
+          }
+        }
+      }
+    },
+    "enableStaging": false,
+    "validateDataConsistency": true,
+    "translator": {
+      "type": "TabularTranslator", "typeConversion": true,
+      "typeConversionSettings": {"allowDataTruncation": false, "treatBooleanAsNumber": false}
+    }
+  }
+}

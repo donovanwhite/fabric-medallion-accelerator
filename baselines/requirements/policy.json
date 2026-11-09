@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "baseline_version": "1.1.0",
+  "governing_documents": [
+    "baselines/requirements/governance.md",
+    "baselines/requirements/accelerator_invariants.md",
+    "baselines/specifications/architecture.md",
+    "baselines/specifications/metadata_contract.md",
+    "baselines/specifications/specification_workflow.md",
+    "baselines/plans/specification_driven_accelerator/plan.md"
+  ],
+  "required_rule_ids": [
+    "BASE-001", "BASE-002", "BASE-003", "BASE-004", "BASE-005",
+    "BASE-006", "BASE-007", "BASE-008", "BASE-009", "BASE-010",
+    "BASE-011", "BASE-012", "BASE-013", "BASE-014", "BASE-015",
+    "BASE-016", "BASE-017", "BASE-018", "BASE-019", "BASE-020",
+    "BASE-021", "BASE-022", "BASE-023"
+  ],
+  "architecture": {
+    "runtime_authority": "fabric_sql_oltp_pinned_versions",
+    "bronze_landing": "foreach_copy",
+    "bronze_retention": "immutable_no_automatic_deletion",
+    "silver_storage": "canonical_append_only_business_versions",
+    "silver_change_identity": "explicit_business_keys_sha256",
+    "gold_storage": "explicit_dimension_fact_grains",
+    "gold_readiness": "complete_version_pinned_release",
+    "notebook_execution": "validated_bounded_dependency_dag",
+    "layout_selector": "exclusive_partitioned_or_liquid",
+    "activation": "separate_authorized_operation",
+    "publication": "separate_business_approval",
+    "generated_code": "case_owned_trusted_extensions_only"
+  },
+  "compiler": {
+    "source_types": ["sql"],
+    "sql_connectors": {
+      "FabricSql": ["OAuth2"],
+      "SqlServer": ["Basic"]
+    },
+    "gold_patterns": ["scd2_dimension", "atomic_fact", "snapshot_fact", "calendar", "mlv"],
+    "rule_handlers": ["required_columns", "value_range", "equals_columns", "business_key_unique", "allowed_values"],
+    "semantic_aggregations": ["sum", "count", "min", "max"],
+    "generated_directory": "generated",
+    "native_capabilities_verified_by_generation": false
+  }
+}

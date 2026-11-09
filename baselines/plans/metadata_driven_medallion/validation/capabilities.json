@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "scope": "metadata_runtime_local_replacement",
+  "full_refactor_status": "in_progress",
+  "current_local_package": {
+    "matches_last_deployed_control_package": false,
+    "pipeline_and_geometry_SQL_native_validation": "unverified",
+    "metadata_pipeline_runtime": "unverified",
+    "execution_scope": "local_only_after_user_choice",
+    "control_connection": "conn_orchestrator_sql",
+    "control_connection_metadata": "FabricSql_OAuth2_discovered_read_only",
+    "installer_binding": "bound_inactive_draft_and_reusable_default_publication_verified_locally_native_lifecycle_pending",
+    "generic_gold_dag": "verified_offline_payload_and_clean_namespace_only_native_fabric_unverified",
+    "partial_copy_reconciliation": "verified_locally_native_acceptance_pending",
+    "persisted_file_arrival_transport": "verified_locally_remote_observer_pending",
+    "fresh_delta_replay": "verified_local_linux_delta_only_native_fabric_unverified",
+    "silver_quality_actions": "verified_local_spark_delta_only_native_fabric_unverified",
+    "quarantine_snapshot_membership": "verified_local_delta_only_native_gold_dag_unverified",
+    "source_execution_scope": "Fabric_SQL_demo_only_FTP_SFTP_deferred_by_user",
+    "mlv_lifecycle": "offline_and_real_local_Spark_reconciliation_verified_native_serving_ownership_mode_observer_unverified",
+    "layout_runtime": "offline_prewrite_and_maintenance_contracts_verified_native_layout_and_target_specific_migration_unverified",
+    "repository_retirement": "16_legacy_notebooks_deleted_six_reusable_notebooks_11_item_inventory",
+    "cloud_legacy_deletion": "not_performed_requires_later_exact_ID_review"
+  },
+  "approvals": {
+    "A1": "approved_bounded_synthetic_capability_probes",
+    "A2": "approved_control_database_and_metadata_only_validation",
+    "A2_source_staging": "not_approved",
+    "A3_cutover": "not_approved",
+    "A4_permissions_layout_retention": "not_approved"
+  },
+  "raw_evidence": {
+    "capability_journal_sha256": "13359e55525df76f09a633b90f5eae4f07b33336727d7bb258d9a63c7aa87c40",
+    "sql_validation_sha256": "ca3f589deccf8a856e5835d45d939a0cdfb9a7cb31fc1f8a8e3c59f3d3a04305",
+    "transport_probe_sha256": "7c7b5463bcca9f9e66c73a6df5e6e1e304da1a1729527e0b9265f98187efa3d1",
+    "location": "approved_private_session_evidence_not_committed"
+  },
+  "verified": [
+    {
+      "id": "dynamic_fabric_sql_connection",
+      "shape": "source.datasetSettings.connectionSettings.properties.externalReferences.connection",
+      "expression": "@item().connection_id",
+      "expression_type": "string",
+      "proof": "two_authorized_oauth_connections_in_one_foreach",
+      "negative_case": "nonexistent_connection_rejected_without_static_fallback"
+    },
+    {
+      "id": "parameterized_control_sql",
+      "activity": "Script",
+      "shape": "typeProperties.scripts[].parameters",
+      "proof": "bound_string_value_round_tripped",
+      "limitations": "Script_control_mutations_and_Copy_source_reads_have_distinct_parameter_shapes"
+    },
+    {
+      "id": "notebook_parameters",
+      "endpoint": "POST /workspaces/{workspace}/notebooks/{notebook}/jobs/execute/instances?beta=false",
+      "shape": "parameters array of name/value/type Text",
+      "proof": "exact_injected_value_read_back",
+      "negative_case": "generic_job_endpoint_accepted_but_ignored_top_level_parameters"
+    },
+    {
+      "id": "native_notebook_dag",
+      "api": "notebookutils.notebook.validateDAG and runMultiple",
+      "concurrency": 2,
+      "proof": "independent_tasks_overlapped_and_join_waited_for_both",
+      "negative_case": "incompatible_default_lakehouse_rejected"
+    },
+    {
+      "id": "notebook_fabric_rest_read",
+      "authentication": "notebookutils.credentials.getToken('pbi')",
+      "proof": "public_fabric_workspace_GET_returned_200",
+      "limitations": "not_proof_of_MLV_refresh_write_authorization"
+    },
+    {
+      "id": "large_oltp_metadata_export",
+      "definition_version": "treasury-bootstrap-v1",
+      "definition_sha256": "c120bf53caeb9d6a1f4644c356c82a2cdc084ab8201249b4c2a9e1685e100653",
+      "definition_bytes": 1434369,
+      "connections_verified": 2,
+      "proof": "complete_Copy_CSV_payload_hash_matches_pinned_OLTP_definition",
+      "authority": "OLTP_only_not_mirrored_LOB_representation"
+    },
+    {
+      "id": "parameterized_copy_stored_procedure",
+      "source_type": "FabricSqlDatabaseSource",
+      "procedure_property": "sqlReaderStoredProcedureName",
+      "parameters_property": "storedProcedureParameters",
+      "parameter_shape": {
+        "version_id": {
+          "type": "String",
+          "value": {
+            "value": "@pipeline().parameters.p_version_id",
+            "type": "Expression"
+          }
+        }
+      },
+      "procedure": "cfg.usp_preview_version",
+      "proof": "child_parameter_overrode_deliberately_invalid_default_and_complete_pinned_definition_read_back_through_two_connections",
+      "definition_version": "treasury-bootstrap-v1",
+      "definition_sha256": "c120bf53caeb9d6a1f4644c356c82a2cdc084ab8201249b4c2a9e1685e100653"
+    },
+    {
+      "id": "same_workspace_child_invocation",
+      "activity_type": "ExecutePipeline",
+      "reference_type": "PipelineReference",
+      "reference_name": "child_item_guid",
+      "waitOnCompletion": true,
+      "parameters": "expression_objects_under_typeProperties.parameters",
+      "proof": "parent_job_completed_and_child_parameterized_Copy_outputs_verified",
+      "limitations": "same_workspace_only_no_new_pipeline_connection_required"
+    },
+    {
+      "id": "configuration_and_execution_sql",
+      "engine": "Fabric_SQL_database_OLTP",
+      "cases_passed": 38,
+      "exit_code": 0,
+      "proof": [
+        "immutable_registration_validation_approval_and_CAS_activation",
+        "Python_SQL_canonical_plan_parity",
+        "idempotent_preparation_and_complete_bounded_pages",
+        "same_target_and_expired_ownership_rejection",
+        "source_and_target_fences",
+        "uncertain_submission_recovery_without_blind_retry",
+        "immutable_result_inbox_and_failed_dependency_exclusion"
+      ],
+      "preservation": {
+        "stored_draft_versions": 3,
+        "active_configurations": 0,
+        "custom_role_memberships": 0,
+        "retained_fixture_versions": 0,
+        "retained_operational_fixture_rows": 0
+      },
+      "limitations": [
+        "permission_impersonation_not_tested",
+        "parallel_SQL_session_contention_not_measured",
+        "not_evidence_of_business_pipeline_execution_or_Delta_fence_integration"
+      ]
+    }
+  ],
+  "rejected_probe_shapes": [
+    {
+      "shape": "Copy sys.sp_executesql parameter candidates with scalar or expression-object values",
+      "result": "pre_execution_BadRequest_without_activity_rows",
+      "interpretation": "those_candidates_only_not_all_stored_procedure_support"
+    }
+  ],
+  "unverified": [
+    "dedicated_orchestrator_connection_installer_workflow",
+    "metadata_driven_master_pipeline_and_real_source_execution",
+    "controlled_FTP_and_SFTP_auth_and_arrival",
+    "MLV_creation_refresh_write_authorization_and_reconciliation",
+    "partitioned_and_liquid_physical_execution",
+    "generic_Silver_Gold_DAG_business_parity",
+    "end_to_end_SC001_through_SC012_and_cutover"
+  ]
+}

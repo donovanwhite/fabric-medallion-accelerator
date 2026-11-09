@@ -1,0 +1,324 @@
+# Planning traceability only; full implementation and cutover remain pending.
+metadata:
+  generated: "2026-11-06"
+  source_spec: 'metadatadriven-medallion-requirements.md'
+  target_plan: 'docs\plans\metadata-driven-medallion\plan.md'
+  implementation_status: "in_progress"
+
+summary:
+  total_requirements: 60
+  covered_requirements: 60
+  missing_requirements: 0
+  coverage_percentage: 100.0
+
+requirements:
+  - req_id: "REQ-001"
+    req_description: "Runtime metadata authority"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "3.1"}, {item_id: "9.2"}]
+  - req_id: "REQ-002"
+    req_description: "Immutable versions and run pinning"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "3.1"}]
+  - req_id: "REQ-003"
+    req_description: "Layered objects and relationships"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "3.1"}]
+  - req_id: "REQ-004"
+    req_description: "Separate ordering semantics"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "5.2"}]
+  - req_id: "REQ-005"
+    req_description: "Activation validation"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.2"}, {item_id: "2.1"}]
+  - req_id: "REQ-006"
+    req_description: "Preview and future-run rollback"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.1"}, {item_id: "10.2"}]
+  - req_id: "REQ-007"
+    req_description: "Connection, authentication and gateway validation"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.2"}, {item_id: "9.1"}]
+  - req_id: "REQ-008"
+    req_description: "Credential exclusion"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "9.1"}]
+  - req_id: "REQ-009"
+    req_description: "Connector-specific ForEach and Copy"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "4.1"}, {item_id: "4.2"}]
+  - req_id: "REQ-010"
+    req_description: "Safe SQL extraction projections"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "4.1"}]
+  - req_id: "REQ-011"
+    req_description: "File shape and completion"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "4.2"}]
+  - req_id: "REQ-012"
+    req_description: "Exact source representations"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.1"}, {item_id: "4.1"}, {item_id: "4.3"}]
+  - req_id: "REQ-013"
+    req_description: "Disabled dependencies and paging"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.1"}, {item_id: "4.1"}]
+  - req_id: "REQ-014"
+    req_description: "Source authority and overlap"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "3.1"}]
+  - req_id: "REQ-015"
+    req_description: "New Bronze naming"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "4.3"}]
+  - req_id: "REQ-016"
+    req_description: "Exact file membership"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "4.2"}, {item_id: "4.3"}]
+  - req_id: "REQ-017"
+    req_description: "Immutable batch lineage"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.1"}, {item_id: "4.3"}]
+  - req_id: "REQ-018"
+    req_description: "Retention and replay separation"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "4.3"}]
+  - req_id: "REQ-019"
+    req_description: "Historical path compatibility"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.1"}, {item_id: "4.3"}]
+  - req_id: "REQ-020"
+    req_description: "Silver namespace compatibility"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.2"}, {item_id: "5.1"}]
+  - req_id: "REQ-021"
+    req_description: "One append-only Silver store"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "5.1"}]
+  - req_id: "REQ-022"
+    req_description: "Hash and version change semantics"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "5.1"}, {item_id: "10.1"}]
+  - req_id: "REQ-023"
+    req_description: "Configured DQ coverage"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "5.1"}]
+  - req_id: "REQ-024"
+    req_description: "Quarantine and no silent loss"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "5.1"}, {item_id: "7.2"}]
+  - req_id: "REQ-025"
+    req_description: "Source-wide commit gating"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "5.2"}]
+  - req_id: "REQ-026"
+    req_description: "No inferred deletes or false CDC"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.2"}, {item_id: "5.1"}]
+  - req_id: "REQ-027"
+    req_description: "Reusable and specialist Gold"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.1"}, {item_id: "6.3"}]
+  - req_id: "REQ-028"
+    req_description: "Explicit Gold business contracts"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.1"}, {item_id: "6.3"}]
+  - req_id: "REQ-029"
+    req_description: "Configured observed-time SCD2"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.1"}, {item_id: "6.2"}]
+  - req_id: "REQ-030"
+    req_description: "Atomic facts and corrections"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.1"}, {item_id: "6.2"}]
+  - req_id: "REQ-031"
+    req_description: "Dimension and source readiness"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "5.2"}, {item_id: "6.2"}]
+  - req_id: "REQ-032"
+    req_description: "Version-pinned Gold releases"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.2"}, {item_id: "7.1"}]
+  - req_id: "REQ-033"
+    req_description: "Unsupported measures remain gated"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.1"}, {item_id: "10.2"}]
+  - req_id: "REQ-034"
+    req_description: "Versioned MLV query contracts"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.2"}, {item_id: "7.1"}]
+  - req_id: "REQ-035"
+    req_description: "Controlled MLV definition lifecycle"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.2"}, {item_id: "7.1"}]
+  - req_id: "REQ-036"
+    req_description: "Managed refresh and reconciliation"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "6.2"}, {item_id: "7.1"}]
+  - req_id: "REQ-037"
+    req_description: "Honest incremental and full refresh behaviour"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "7.1"}, {item_id: "10.1"}]
+  - req_id: "REQ-038"
+    req_description: "Explicit constraint enforcement"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "7.2"}]
+  - req_id: "REQ-039"
+    req_description: "One layout selector"
+    priority: "P2"
+    plan_mapping:
+      items: [{item_id: "8.1"}]
+  - req_id: "REQ-040"
+    req_description: "Selected layout columns"
+    priority: "P2"
+    plan_mapping:
+      items: [{item_id: "8.1"}]
+  - req_id: "REQ-041"
+    req_description: "Materialisation capability checks"
+    priority: "P2"
+    plan_mapping:
+      items: [{item_id: "1.2"}, {item_id: "8.1"}]
+  - req_id: "REQ-042"
+    req_description: "Layout-specific maintenance"
+    priority: "P2"
+    plan_mapping:
+      items: [{item_id: "8.1"}, {item_id: "8.2"}]
+  - req_id: "REQ-043"
+    req_description: "Explicit physical migration"
+    priority: "P2"
+    plan_mapping:
+      items: [{item_id: "8.2"}, {item_id: "10.2"}]
+  - req_id: "REQ-044"
+    req_description: "One runtime-driven entry point"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "4.1"}, {item_id: "9.2"}]
+  - req_id: "REQ-045"
+    req_description: "Validated structured notebook DAG"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "5.2"}, {item_id: "6.2"}]
+  - req_id: "REQ-046"
+    req_description: "Bounded and serialised writers"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "5.2"}]
+  - req_id: "REQ-047"
+    req_description: "Lakehouse and session compatibility"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.2"}, {item_id: "5.2"}, {item_id: "6.2"}]
+  - req_id: "REQ-048"
+    req_description: "Pinned worker contracts and versions"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.1"}, {item_id: "6.3"}, {item_id: "9.2"}]
+  - req_id: "REQ-049"
+    req_description: "Observable failure propagation"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "5.2"}, {item_id: "6.2"}]
+  - req_id: "REQ-050"
+    req_description: "Safe submission and retry recovery"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "7.1"}, {item_id: "9.1"}]
+  - req_id: "REQ-051"
+    req_description: "Independent control-plane bootstrap"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "9.1"}]
+  - req_id: "REQ-052"
+    req_description: "Guided OAuth prerequisite recheck"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "9.1"}]
+  - req_id: "REQ-053"
+    req_description: "Reconciled seed and new inventory"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.2"}, {item_id: "9.2"}]
+  - req_id: "REQ-054"
+    req_description: "Non-destructive transition and parity"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.1"}, {item_id: "10.1"}, {item_id: "10.2"}]
+  - req_id: "REQ-055"
+    req_description: "End-to-end operational lineage"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "3.2"}]
+  - req_id: "REQ-056"
+    req_description: "Counts and actionable safe errors"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "5.1"}, {item_id: "7.2"}]
+  - req_id: "REQ-057"
+    req_description: "Authorised metadata and rule changes"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "2.1"}, {item_id: "6.3"}, {item_id: "9.1"}]
+  - req_id: "REQ-058"
+    req_description: "Measured capacity and cost controls"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.2"}, {item_id: "5.2"}, {item_id: "7.1"}, {item_id: "10.1"}]
+  - req_id: "REQ-059"
+    req_description: "Distinct rollback surfaces"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "3.2"}, {item_id: "8.2"}, {item_id: "10.2"}]
+  - req_id: "REQ-060"
+    req_description: "Privacy and consumption boundaries"
+    priority: "P1"
+    plan_mapping:
+      items: [{item_id: "1.1"}, {item_id: "6.1"}, {item_id: "10.2"}]
+
+missing_requirements: []
+orphan_plan_items: []
+
+validation:
+  passed: true
+  scope: "Requirement-to-plan coverage only"
+  errors: []
+  warnings: []
+  runtime_acceptance: "not_executed"

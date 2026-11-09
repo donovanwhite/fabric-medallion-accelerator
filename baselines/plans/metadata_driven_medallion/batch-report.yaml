@@ -1,0 +1,713 @@
+batch_id: metadata-partial-copy-arrival-silver-B05
+previous_batch_id: metadata-copy-silver-control-integration-B04
+scope: Local failed/partial Copy reconciliation, connector gates, Silver quality evidence and control compiler; native acceptance remains gated
+full_refactor_status: in_progress
+completed_tasks: [T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T049]
+blocked_tasks:
+  - {task_id: T022, reason: Local manifest components pass; upstream Copy/control integration is incomplete, required_task_ids: [T018]}
+  - {task_id: T023, reason: Local parsing/receipt cases pass; connector and upstream manifest acceptance remain open, required_task_ids: [T021, T022]}
+  - {task_id: T024, reason: Local extracted/versioned rule components pass; upstream acceptance remains open, required_task_ids: [T023]}
+  - {task_id: T025, reason: Local scoped Silver components pass; upstream acceptance remains open, required_task_ids: [T022, T024]}
+  - {task_id: T026, reason: Focused Delta and rule checks pass; full metadata-path history/failure acceptance remains open, required_task_ids: [T024, T025]}
+  - {task_id: T027, reason: Local DAG construction passes; upstream Silver acceptance remains open, required_task_ids: [T026]}
+  - {task_id: T028, reason: Generic notebooks generate and pass clean-namespace checks; upstream DAG acceptance remains open, required_task_ids: [T027]}
+  - {task_id: T029, reason: Local fan-in and unique commit checks pass; controller and upstream acceptance remain open, required_task_ids: [T025, T027]}
+  - {task_id: T030, reason: Local DAG/fake-runner contracts pass; generated-DAG Fabric execution is not verified, required_task_ids: [T028, T029]}
+in_progress_tasks: [T016, T017, T018, T019, T020, T021]
+local_component_tasks: [T022, T023, T024, T025, T026, T027, T028, T029, T030]
+acceptance_scope: Local component proof does not complete a task with unfinished upstream integration or platform acceptance
+remaining_tasks: checkpoints/tasks-to-impl.yaml#pending_tasks
+
+files_changed:
+  T001:
+    - {file: deployment/tests/fixtures/medallion_baseline.json, change_type: created, description: Frozen source and Gold contracts without business records}
+  T002:
+    - {file: deployment/tests/test_contracts.py, change_type: modified, description: Source baseline parity}
+    - {file: deployment/tests/test_gold_contracts.py, change_type: modified, description: Gold semantic parity}
+  T003:
+    - {file: deployment/tests/test_orchestration_capabilities.py, change_type: created, description: Payload builders and native job/output readback}
+  T004:
+    - {file: docs/plans/metadata-driven-medallion/validation/capabilities.json, change_type: created, description: Portable verified/rejected/unverified evidence}
+  T005:
+    - {file: deployment/src/fabric_treasury_deployer/metadata.py, change_type: created, description: Immutable typed metadata and strict validation}
+    - {file: deployment/tests/metadata_fixtures.py, change_type: created, description: Credential-free fixtures}
+  T006:
+    - {file: artefacts/orchestrator/schema.sql, change_type: created, description: Configuration/control tables and roles without memberships}
+  T007:
+    - {file: artefacts/orchestrator/procedures.sql, change_type: created, description: Immutable lifecycle and compare-and-swap activation}
+  T008:
+    - {file: deployment/src/fabric_treasury_deployer/orchestrator.py, change_type: created, description: Content-addressed draft importer and SQL package}
+  T009:
+    - {file: deployment/tests/test_metadata.py, change_type: created, description: Metadata validation and hash-policy regressions}
+    - {file: deployment/tests/test_orchestrator_sql.py, change_type: created, description: Seed parity and SQL definition contracts}
+  T010:
+    - {file: deployment/src/fabric_treasury_deployer/metadata.py, change_type: modified, description: "Deterministic closure, identities, paths and pages"}
+  T011:
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: created, description: Immutable snapshot transport and worker resolution}
+    - {file: deployment/tests/test_run_manifests.py, change_type: created, description: Real-file transport and tamper/truncation checks}
+  T012:
+    - {file: deployment/tests/test_run_plans.py, change_type: created, description: "Pinned selection, authority and 5001-object paging"}
+  T013:
+    - {file: artefacts/orchestrator/procedures.sql, change_type: modified, description: Canonical SQL run compiler and fenced lifecycle}
+    - {file: artefacts/orchestrator/schema.sql, change_type: modified, description: Additive source fence and recovery evidence}
+  T014:
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Immutable results and conservative recovery decisions}
+  T015:
+    - {file: deployment/tests/test_run_lifecycle.py, change_type: created, description: "Persistence, uncertainty, failure propagation and redacted contracts"}
+    - {file: deployment/tests/test_orchestrator_sql_live.py, change_type: created, description: Approved rollback-only native fixtures}
+    - {file: deployment/tests/Invoke-OrchestratorSqlValidation.ps1, change_type: created, description: Encrypted token-authenticated TDS validation and preservation guards}
+  T016:
+    - {file: deployment/src/fabric_treasury_deployer/definitions.py, change_type: modified, description: Local metadata pipeline generators and shared lossless projection helper}
+    - {file: deployment/src/fabric_treasury_deployer/metadata.py, change_type: modified, description: Explicit source geometry and bounded pinned Copy descriptors}
+    - {file: artefacts/orchestrator/procedures.sql, change_type: modified, description: Unpublished local prepare/export/Copy-page procedures with integration gate}
+    - {file: artefacts/orchestrator/procedures.sql, change_type: modified, description: Atomic Copy/notebook reservations, authoritative dispatch export and scoped pipeline result reconciliation; bound EXEC syntax corrected}
+  T017:
+    - {file: artefacts/pipeline/bronze_silver_gold_pipeline.json, change_type: created, description: Master template with bound prepare/export and generic child paging}
+    - {file: artefacts/pipeline/copy_bronze_batch_pipeline.json, change_type: created, description: Lookup/ForEach/Switch/Copy template without deployed source arrays}
+    - {file: deployment/src/fabric_treasury_deployer/definitions.py, change_type: modified, description: Generated reservation/activity identity and bounded verified callback operation in the same child; master stages source readiness before Silver/Gold}
+  T018:
+    - {file: deployment/tests/test_metadata_pipeline.py, change_type: created, description: Local descriptor and pipeline contracts; live staging remains gated}
+    - {file: deployment/tests/test_pipeline_reconciliation.py, change_type: created, description: Eight dispatch/activity/output/callback contracts including failed parent and source-commit readiness}
+  T019:
+    - {file: artefacts/pipeline/connectors/ftp_copy.json, change_type: created, description: Distinct unproved binary-preserving FTP adapter}
+    - {file: artefacts/pipeline/connectors/sftp_copy.json, change_type: created, description: Distinct unproved binary-preserving SFTP adapter}
+  T020:
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Pure marker/stability and exact membership sealing; transport fan-in pending}
+    - {file: deployment/src/fabric_treasury_deployer/metadata.py, change_type: modified, description: Typed FTP/SFTP CSV geometry/policy/auth descriptors; SQL file dispatch and listing remain unimplemented}
+  T021:
+    - {file: deployment/tests/test_file_ingestion.py, change_type: created, description: Eight local arrival/adapter cases; endpoint probes pending}
+  T022:
+    - {file: artefacts/medallion/treasury_ingestion.py, change_type: modified, description: Detached manifest contexts and exact multi-file path/header/lineage handling}
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Immutable Bronze receipts and pinned source contracts; policy and recursive membership guards}
+  T023:
+    - {file: deployment/tests/test_manifest_ingestion.py, change_type: created, description: Eight receipt/context/policy/completeness cases with real local files}
+    - {file: deployment/tests/test_spark_runtime.py, change_type: modified, description: Real Spark multi-file representations and strict header/hash checks}
+    - {file: deployment/tests/test_run_manifests.py, change_type: modified, description: Filesystem fixture exposes directory entries for recursive membership checks}
+  T024:
+    - {file: artefacts/medallion/treasury_rules.py, change_type: created, description: AST-anchored unchanged specialist checks and strict versioned baseline/generic handlers}
+    - {file: artefacts/medallion/treasury_ingestion.py, change_type: modified, description: Distinct warning/quarantine/fail actions and durable rule summaries without raw values}
+    - {file: deployment/tests/metadata_fixtures.py, change_type: modified, description: Mandatory versioned rule profiles}
+  T025:
+    - {file: artefacts/medallion/treasury_ingestion.py, change_type: modified, description: Object-scoped inventory/load; explicit business hash order and compatible physical schema ordering}
+    - {file: artefacts/gold/treasury_gold.py, change_type: modified, description: Exclude approved quarantined rows from selected Gold snapshot membership}
+  T026:
+    - {file: deployment/tests/test_metadata_rules.py, change_type: created, description: Four profile/handler/baseline validation cases}
+    - {file: deployment/tests/test_append_only_runtime.py, change_type: modified, description: Real Delta replay, quarantine evidence, rule actions and warning-summary regressions}
+  T027:
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Prepared dispatch and bounded Lakehouse-bound native DAG generation}
+  T028:
+    - {file: deployment/src/fabric_treasury_deployer/orchestrator.py, change_type: modified, description: Isolated four-module worker bundle and three generic notebook generators}
+    - {file: deployment/src/fabric_treasury_deployer/definitions.py, change_type: modified, description: Legacy source notebooks embed trusted extracted rules before ingestion}
+    - {file: deployment/src/fabric_treasury_deployer/gold.py, change_type: modified, description: Coupled legacy Gold source-runtime bundle includes extracted rules}
+    - {file: deployment/build.py, change_type: modified, description: Opt-in --metadata generation/check without changing the default installer inventory}
+    - {file: artefacts/orchestrator/notebooks/nb_prepare_medallion_run.ipynb, change_type: created, description: Generated pinned preparation notebook}
+    - {file: artefacts/orchestrator/notebooks/nb_orchestrate_silver.ipynb, change_type: created, description: Generated Silver parent requiring prepared dispatch}
+    - {file: artefacts/orchestrator/notebooks/nb_silver_worker.ipynb, change_type: created, description: Generated object worker requiring immutable context and dispatch}
+    - {file: deployment/tests/test_metadata_notebooks.py, change_type: created, description: Four clean-namespace/binding/missing-dispatch cases}
+    - {file: deployment/tests/test_orchestrator_sql.py, change_type: modified, description: Updated full-bundle code hash contract}
+  T029:
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Immutable worker stages/replay and full source/task/count/version/fence fan-in}
+    - {file: artefacts/medallion/treasury_ingestion.py, change_type: modified, description: Complete-selection publication and one idempotent source commit; retention remains non-deleting}
+    - {file: artefacts/medallion/treasury_ingestion.py, change_type: modified, description: Unique source-commit evidence read at an exact Delta audit version}
+    - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Initial Silver callback integration verifies full staged outputs, no-deletion retention and authoritative source commits before SQL readiness}
+  T030:
+    - {file: deployment/tests/test_notebook_dag.py, change_type: created, description: Seven local DAG/dispatch/worker/failure/fan-in contracts with fake native runner}
+  T049:
+    - {file: deployment/src/fabric_treasury_deployer/orchestrator.py, change_type: modified, description: Independent control SQL project and explicit draft compiler without simulator seeds or activation}
+    - {file: deployment/src/fabric_treasury_deployer/definitions.py, change_type: modified, description: Registered separate control project definition}
+    - {file: deployment/tests/test_orchestrator_sql.py, change_type: modified, description: Deterministic project parts, exact escaped draft and no-reseed/no-activation checks}
+    - {file: deployment/tests/test_deployer.py, change_type: modified, description: Control-only bootstrap and dry-run isolation}
+  related:
+    - {file: artefacts/medallion/README.md, change_type: modified, description: Manifest paths/history/rules/fan-in and remaining acceptance boundaries}
+    - {file: artefacts/orchestrator/README.md, change_type: modified, description: Generic components and precise unimplemented controller/file/Gold surfaces}
+    - {file: docs/plans/metadata-driven-medallion/plan.md, change_type: modified, description: Honest component progress without checking off incomplete dependent tasks}
+
+upstream_artifacts_consumed:
+  batch:
+    - {artifact: metadatadriven-medallion-requirements.md, used_for: "Runtime authority, fidelity, transport and recovery invariants"}
+    - {artifact: docs/plans/metadata-driven-medallion/plan.md, used_for: T001-T030 dependencies and local/live acceptance boundaries}
+    - {artifact: docs/plans/metadata-driven-medallion/checkpoints/plan-to-tasks.yaml, used_for: Complete task identity and dependency accounting}
+evidence_mapping:
+  baseline:
+    upstream: plan.md#plan-item-11-freeze-the-brownfield-contract
+    output: deployment/tests/fixtures/medallion_baseline.json
+    evidence: Source and Gold baseline assertions
+  capability:
+    upstream: plan.md#plan-item-12-prove-the-platform-boundaries-before-reliance
+    output: validation/capabilities.json
+    evidence: Seven live readback tests and immutable private evidence fingerprint
+  control:
+    upstream: plan.md#plan-item-32-make-retries-leases-and-audit-reconciliation-explicit
+    output: artefacts/orchestrator/procedures.sql
+    evidence: 38 native cases including Python/SQL canonical plan parity
+  manifest_silver:
+    upstream: plan.md#plan-item-43-resolve-new-and-historical-bronze-from-manifests
+    output: artefacts/medallion/treasury_ingestion.py
+    evidence: Local receipt/context cases plus real Spark multi-file/type/header/hash checks
+  silver_rules:
+    upstream: plan.md#plan-item-51-drive-existing-silver-algorithms-through-metadata
+    output: artefacts/medallion/treasury_rules.py
+    evidence: Frozen source contracts and real local source-fidelity/rule tests
+  silver_dag:
+    upstream: plan.md#plan-item-52-generate-and-execute-the-silver-dag-safely
+    output: artefacts/orchestrator/treasury_orchestration.py
+    evidence: Local DAG/dispatch/fan-in and clean generated namespaces; no live generated-DAG run
+source_references:
+  T001:
+    source_files:
+      - {file: deployment/src/fabric_treasury_deployer/contracts.py, methods_read: [load_sources]}
+      - {file: deployment/src/fabric_treasury_deployer/gold.py, methods_read: [gold_config]}
+    notes: Frozen business contracts remain unchanged; extracted source checks and regenerated runtime bundles preserve legacy constructor semantics
+  T003:
+    source_files:
+      - {file: deployment/src/fabric_treasury_deployer/definitions.py, methods_read: [pipeline_definition]}
+    notes: Retains ForEach/Copy and exact connection references
+  T008:
+    source_files:
+      - {file: deployment/src/fabric_treasury_deployer/contracts.py, methods_read: [runtime_config, load_sources]}
+      - {file: deployment/src/fabric_treasury_deployer/gold.py, methods_read: [gold_config, mlv_definitions]}
+    notes: Preserves historical identities and synthetic/provisional business semantics
+  T014:
+    source_files:
+      - {file: deployment/src/fabric_treasury_deployer/fabric.py, methods_read: [request, paged]}
+    notes: Reuses existing reads; no automatic mutation retry introduced
+  T022:
+    source_files:
+      - {file: artefacts/medallion/treasury_ingestion.py, methods_read: [processing_context, source_path, read_raw, inventory]}
+    notes: Separate manifest constructor preserves old-path guards; exact receipt policy/membership checked before generic writes
+  T024:
+    source_files:
+      - {file: artefacts/medallion/treasury_ingestion.py, methods_read: [prepare_rows, add_foreign_key_rules, source_business_checks]}
+    specialist_row_branches_preserved: 4
+    notes: Four specialist row branches and the source-business-check function were moved using AST anchoring without rewriting their branch bodies
+  T025:
+    source_files:
+      - {file: artefacts/medallion/treasury_ingestion.py, methods_read: [process_table, append_silver, eligible_silver, latest_silver]}
+    notes: One append-only target retained; metadata/projection order does not become a business event
+  T029:
+    source_files:
+      - {file: artefacts/medallion/treasury_ingestion.py, methods_read: [validate_source, cleanup_snapshots]}
+    notes: Original source controls remain publication authority; no-deletion retention verifier is preserved but generic retention/controller wiring remains pending
+traceability:
+  - {requirements: [REQ-012, REQ-019, REQ-054, REQ-060], plan_item: "1.1", tasks: [T001, T002], files: [deployment/tests/fixtures/medallion_baseline.json], status: completed_foundation_scope}
+  - {requirements: [REQ-005, REQ-007, REQ-035, REQ-041, REQ-047, REQ-058], plan_item: "1.2", tasks: [T003, T004], files: [deployment/tests/test_orchestration_capabilities.py, docs/plans/metadata-driven-medallion/validation/capabilities.json], status: completed_with_explicit_unverified_capabilities}
+  - {requirements: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-008, REQ-014, REQ-023, REQ-038, REQ-051, REQ-055, REQ-057], plan_item: "2.1", tasks: [T005, T006, T007, T009], files: [deployment/src/fabric_treasury_deployer/metadata.py, artefacts/orchestrator/schema.sql, artefacts/orchestrator/procedures.sql], status: completed_foundation_scope}
+  - {requirements: [REQ-020, REQ-026, REQ-034, REQ-053], plan_item: "2.2", tasks: [T008, T009], files: [deployment/src/fabric_treasury_deployer/orchestrator.py], status: completed_foundation_scope}
+  - {requirements: [REQ-001, REQ-002, REQ-003, REQ-006, REQ-013, REQ-014, REQ-017, REQ-048], plan_item: "3.1", tasks: [T010, T011, T012], files: [deployment/src/fabric_treasury_deployer/metadata.py, artefacts/orchestrator/treasury_orchestration.py], status: completed_foundation_scope}
+  - {requirements: [REQ-018, REQ-025, REQ-046, REQ-049, REQ-050, REQ-055, REQ-056, REQ-059], plan_item: "3.2", tasks: [T013, T014, T015], files: [artefacts/orchestrator/procedures.sql, artefacts/orchestrator/treasury_orchestration.py, deployment/tests/test_run_lifecycle.py], status: completed_foundation_scope}
+  - {requirements: [REQ-012, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019], plan_item: "4.3", tasks: [T022, T023], files: [artefacts/medallion/treasury_ingestion.py, artefacts/orchestrator/treasury_orchestration.py, deployment/tests/test_manifest_ingestion.py, deployment/tests/test_spark_runtime.py], status: local_components_verified_acceptance_blocked}
+  - {requirements: [REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-026, REQ-056], plan_item: "5.1", tasks: [T024, T025, T026], files: [artefacts/medallion/treasury_rules.py, artefacts/medallion/treasury_ingestion.py, deployment/tests/test_metadata_rules.py, deployment/tests/test_append_only_runtime.py], status: local_components_verified_acceptance_blocked}
+  - {requirements: [REQ-004, REQ-025, REQ-031, REQ-045, REQ-046, REQ-047, REQ-049, REQ-058], plan_item: "5.2", tasks: [T027, T028, T029, T030], files: [artefacts/orchestrator/treasury_orchestration.py, deployment/src/fabric_treasury_deployer/orchestrator.py, deployment/build.py, deployment/tests/test_notebook_dag.py, deployment/tests/test_metadata_notebooks.py], status: local_components_verified_acceptance_blocked}
+  - {requirements: [REQ-007, REQ-008, REQ-050, REQ-051, REQ-052, REQ-057], plan_item: "9.1", tasks: [T049], files: [deployment/src/fabric_treasury_deployer/orchestrator.py, deployment/src/fabric_treasury_deployer/definitions.py, deployment/tests/test_orchestrator_sql.py, deployment/tests/test_deployer.py], status: local_compiler_verified_installer_integration_pending}
+protocol_violation: false
+errors: []
+warnings:
+  - {severity: HIGH, message: Full refactor is not complete; the default CLI and business pipelines remain unchanged.}
+  - {severity: HIGH, message: "Only metadata-only A2 is approved; no source staging, reloads, schedules, activation or user memberships were changed."}
+  - {severity: MEDIUM, message: "Permission impersonation, multi-session SQL contention, FTP/SFTP, MLV writes, physical layouts and business E2E parity remain unverified."}
+  - {severity: MEDIUM, message: SQL state does not replace authoritative Delta commit/release verification; controller and ledger integration remain pending.}
+  - {severity: HIGH, message: "T016-T021 are not accepted; the initial SQL control path is integrated locally but native semantics, recovery and file-source transport are unverified or unfinished."}
+  - {severity: HIGH, message: "The user chose local-only continuation; current SQL additions were not deployed and are not covered by the earlier 38-case native proof."}
+  - {severity: HIGH, message: "T022-T030 have passing local components but are not accepted tasks; their unfinished upstream Copy/control/connector gates remain explicit blockers."}
+  - {severity: HIGH, message: "SQL now reserves fences and pipeline scopes before execution and exports dispatch; actual native activity identity, API authorization and TDS/pipeline behavior still require approved staging."}
+  - {severity: HIGH, message: "Generated parents accept immutable file-arrival references, but remote observation and after-Copy reobservation remain unimplemented; FTP/SFTP is component proof only."}
+  - {severity: MEDIUM, message: "Generic CSV parsing does not prove new-source type/format or physical-evolution compatibility; those activation checks remain pending."}
+  - {severity: HIGH, message: "The user selected local-only continuation; no new authorization was inferred and no Fabric items, jobs, metadata lifecycle or permissions were changed."}
+  - {severity: HIGH, message: "Existing notebook attempts are deliberately rejected by the initial layer preparer; full approved transformation recovery and successful retained-run skipping are not implemented."}
+implementation_deviations:
+  - Dedicated test_manifest_ingestion.py holds manifest constructor/receipt cases instead of expanding legacy runtime-control assertions; existing legacy tests stay intact and are rerun.
+test_results:
+  T001: &offline
+    command: deployment\.venv\Scripts\python.exe -B -m unittest discover -s deployment\tests -p "test_*.py" -q
+    passed: 193
+    failed: 0
+    skipped: 28
+    exit_code: 0
+    failures: []
+    scope: Latest B05 full offline run of 221 tests; skips do not count as live proof
+  T002: *offline
+  T003: &capability
+    command: Explicit A1 opt-in unittest discovery for test_orchestration_capabilities.py with large-export readback
+    passed: 7
+    failed: 0
+    skipped: 0
+    exit_code: 0
+    duration_seconds: 103.646
+    failures: []
+  T004: *capability
+  T005: *offline
+  T006: &sql
+    command: Explicit metadata-only A2 opt-in unittest discovery for test_orchestrator_sql_live.py
+    passed: 1
+    native_cases_passed: 38
+    failed: 0
+    skipped: 0
+    exit_code: 0
+    duration_seconds: 33.393
+    failures: []
+    scope: Earlier approved foundation proof only; B05 SQL additions are not native-validated
+  T007: *sql
+  T008: *offline
+  T009: *sql
+  T010: *offline
+  T011: *offline
+  T012: *offline
+  T013: *sql
+  T014: *offline
+  T015: *sql
+  T022: &silver_components
+    command: deployment\.venv\Scripts\python.exe -B -m unittest test_metadata_pipeline test_pipeline_reconciliation test_manifest_ingestion test_file_ingestion test_metadata_notebooks test_notebook_dag test_metadata_rules test_gold_contracts test_orchestrator_sql test_contracts -q
+    environment: PYTHONPATH includes deployment/src and deployment/tests
+    passed: 94
+    failed: 0
+    skipped: 0
+    exit_code: 0
+    duration_seconds: 21.551
+    failures: []
+    scope: B05 pure/local-file/fake-runner/clean-namespace component selectors; not Fabric E2E
+  T023: *silver_components
+  T024: *offline
+  T025: *offline
+  T026: *offline
+  T027: *silver_components
+  T028: *silver_components
+  T029: *silver_components
+  T030: *silver_components
+  T049:
+    command: deployment\.venv\Scripts\python.exe -B -m unittest test_orchestrator_sql test_deployer -q
+    environment: PYTHONPATH includes deployment/src and deployment/tests
+    passed: 23
+    failed: 0
+    skipped: 0
+    exit_code: 0
+    scope: Separate SQL project and control-only bootstrap; latest SQL was not executed in Fabric
+additional_validation:
+  generated_assets: {command: deployment\.venv\Scripts\python.exe deployment\build.py --metadata --check, exit_code: 0, notebooks: 20, items: 26, inventory_scope: legacy_default_installer}
+  focused_ruff: {exit_code: 0}
+  focused_ruff_format: {exit_code: 0, files: 14}
+  powershell_syntax: {exit_code: 0}
+  business_spark_runtime:
+    scope: Real local Spark only; no generated-DAG or Fabric execution
+    manifest_hash_rule_cases: {passed: 3, failed: 0, skipped: 0, exit_code: 0, duration_seconds: 31.260}
+    legacy_source_fidelity_cases: {passed: 3, failed: 0, skipped: 0, exit_code: 0, duration_seconds: 282.544}
+  focused_delta_replay:
+    command: deployment\.venv\Scripts\python.exe -B -m unittest test_append_only_runtime.AppendOnlyRuntimeTests.test_projection_order_changes_preserve_physical_schema_and_business_versions -v
+    passed: 1
+    failed: 0
+    skipped: 0
+    exit_code: 0
+    duration_seconds: 296.311
+    scope: Real local Delta projection ordering, unchanged replay, changed values, unique source commit and exact-version commit evidence
+    rerun_note: Earlier test process hung without an active Spark child; stopped only its recorded process tree and reran unbuffered with a 600-second traceback watchdog
+  local_pipeline_contracts: {passed: 5, failed: 0, skipped: 0, exit_code: 0}
+  local_file_arrival_contracts: {passed: 8, failed: 0, skipped: 0, exit_code: 0}
+  local_integration: {passed: 193, failed: 0, skipped: 28, total: 221, exit_code: 0, duration_seconds: 56.851}
+  local_deployment_validation: {command: deployment\.venv\Scripts\python.exe deployment\deploy.py --validate-local, exit_code: 0, source_tables: 44, cloud_calls: false, snapshots_regenerated: false}
+  real_copy_reconciliation: {passed: 1, failed: 0, skipped: 0, exit_code: 0, duration_seconds: 18.780, scope: Real local Spark raw sealing and hash-verified callback persistence}
+  local_sql_parser: {engine_grammar: SQL_Server_TSQL160, schema_batches: 26, procedure_batches: 29, syntax_errors: 0, native_TDS_execution: false}
+  local_callback_pipeline_contracts: {passed: 40, failed: 0, skipped: 0, exit_code: 0, scope: Affected immutable receipt/DAG/kernel/control contracts}
+  final_linux_spark_delta:
+    environment: Isolated Ubuntu WSL with session-extracted signed OpenJDK 8 and existing pinned PySpark 3.5.7 / Delta 3.3.2 packages and cached jars
+    runner: Session-only delta-linux-runtime/run_delta.py; each test class uses a separate Python/JVM process
+    silver:
+      selectors:
+        - test_append_only_runtime.AppendOnlyRuntimeTests.test_projection_order_changes_preserve_physical_schema_and_business_versions
+        - test_append_only_runtime.AppendOnlyRuntimeTests.test_quarantine_evidence_is_required_and_replay_is_idempotent
+        - test_append_only_runtime.AppendOnlyRuntimeTests.test_fail_and_baseline_violations_still_block_source_commit
+        - test_append_only_runtime.AppendOnlyRuntimeTests.test_warning_only_unchanged_batch_records_a_new_summary
+      passed: 4
+      failed: 0
+      skipped: 0
+      exit_code: 0
+      duration_seconds: 215.758
+    gold:
+      selector: test_gold_runtime.GoldSparkTests.test_manifest_multi_file_gold_reopens_sealed_source_membership
+      passed: 1
+      failed: 0
+      skipped: 0
+      exit_code: 0
+      duration_seconds: 173.044
+      scope: Real ingestion and source commit through multi-file Gold membership; one synthetic table and source aggregate checks patched
+    rules:
+      selector: test_spark_runtime.SparkRuntimeTests.test_metadata_rule_actions_preserve_warnings_and_block_errors
+      passed: 1
+      failed: 0
+      skipped: 0
+      exit_code: 0
+      duration_seconds: 70.050
+    combined_jvm_attempt: Plain Spark started first without Delta jars; isolated per-class processes corrected the classpath and all six selectors passed
+    limitations: Local evidence only; not Fabric SQL, native connector, generated DAG, MLV or end-to-end acceptance
+  pipeline_activity_api_contract:
+    source: https://learn.microsoft.com/en-us/fabric/data-factory/pipeline-rest-api-capabilities
+    operation: POST_queryactivityruns_is_read_only
+    scope: "Matches pipelineRunId, activityRunId, activityType, terminal status and safe userProperties; excludes raw input/output/error bodies"
+    actual_workspace_execution: unverified
+  file_connector_contracts:
+    source: https://learn.microsoft.com/en-us/fabric/data-factory/connector-ftp-overview
+    additional_source: https://learn.microsoft.com/en-us/fabric/data-factory/connector-sftp-overview
+    supported_auth: {ftp: [Basic, Anonymous], sftp: [Basic]}
+    exact_file_observer_payload_and_endpoint_proof: unverified
+  receipt_integrity_regression: {before: three_focused_cases_failed, after: passed_in_32_case_component_run, policy_binding: verified_locally, recursive_unselected_membership: verified_locally, pre_write_guard: verified_locally}
+  additional_metadata_only_probes:
+    parameterized_Copy_stored_procedure: verified
+    same_workspace_child_invocation: verified
+    evidence_sha256: 7c7b5463bcca9f9e66c73a6df5e6e1e304da1a1729527e0b9265f98187efa3d1
+  local_SQL_additions: {deployed: false, native_execution: unverified, runtime_capability: unverified}
+deployed_state:
+  latest_draft_version: treasury-bootstrap-b84412e2c45215c9c6294e09
+  latest_definition_sha256: 70c9d3c1b511d00b4513be2a153d7eb0c9bf17407af06466a46b33b10dcb08aa
+  package_sha256: 5093818b464d52a29a563db7fae4af2080fa9adfae0b84929f7651cf324f638c
+  stored_draft_versions: 3
+  active_configurations: 0
+  custom_role_memberships: 0
+  retained_operational_fixture_rows: 0
+  source_pipeline_replacement: false
+  source_reloads: false
+  schedules_changed: false
+  preservation_commit: fff5618
+  implementation_changes_committed: false
+  pushes: false
+  current_local_package_matches_deployed_package: false
+  dedicated_control_connection:
+    name: conn_orchestrator_sql
+    connector: FabricSql
+    authentication: OAuth2
+    discovery: read_only
+    installer_binding: local_resolution_and_journal_verified_generic_asset_binding_pending
+
+resumed_batch:
+  preserved_before_editing: true
+  source_snapshot_regeneration: false
+  ignored_source_relocation: docs/specifications
+  read_only_attachment_edited: false
+  native_runtime_enabled: false
+  completed_local_components: [T016, T017, T018, T019, T020, T021, T022, T023, T027, T028, T029, T030]
+  acceptance_status: blocked_not_complete
+  changes:
+    T016:
+      - {file: deployment/src/fabric_treasury_deployer/definitions.py, description: Completed-dispatch reconciliation and bound Bronze finalization before downstream readiness}
+      - {file: artefacts/orchestrator/procedures.sql, description: Versioned partial-dispatch membership, fenced uncertain reservations and SQL/file descriptor branches}
+    T018:
+      - {file: deployment/tests/test_metadata_pipeline.py, description: Failed Copy-page dependency and finalization regression}
+      - {file: deployment/tests/test_pipeline_reconciliation.py, description: Failed, partial, absent, active and mixed activity evidence without invented jobs or retries}
+    T020:
+      - {file: artefacts/orchestrator/treasury_orchestration.py, description: Immutable marker/stability manifests with pinned membership and selection revalidation}
+      - {file: deployment/src/fabric_treasury_deployer/orchestrator.py, description: Stable arrival references in clean generic parent notebooks and Silver reconciliation}
+    T021:
+      - {file: deployment/tests/test_file_ingestion.py, description: Retained two-observation stability proof}
+      - {file: deployment/tests/test_manifest_ingestion.py, description: Arrival persistence, policy tampering, exact selection and detached Silver context regressions}
+    T028:
+      - {file: deployment/tests/test_metadata_notebooks.py, description: File prepare fails without arrival references and executes from a clean namespace when supplied}
+    T024-T026:
+      - {file: artefacts/medallion/treasury_ingestion.py, description: Reconcile exact quarantine multisets and persist distinct warning summaries without exposing raw fields}
+      - {file: artefacts/medallion/treasury_rules.py, description: Preserve baseline and fail blockers while honoring explicit quarantine actions}
+      - {file: artefacts/gold/treasury_gold.py, description: Derive Gold snapshot membership from accepted source rows}
+      - {file: deployment/tests/test_append_only_runtime.py, description: Exercise warnings on accepted/rejected rows and replay plus collision-safe rule summaries}
+    T049:
+      - {file: deployment/tests/test_orchestrator_sql.py, description: Verify deterministic control-only compiler and exact escaped configuration}
+    provenance_relocation:
+      - {file: deployment/src/fabric_treasury_deployer/contracts.py, description: Resolve exactly one relocated/historical private evidence root and pass it to the unchanged hash-pinned seed validator}
+      - {file: deployment/tests/test_contracts.py, description: Reject ambiguous authority and validate both relocated and historical provenance paths}
+      - {file: .gitignore, description: Preserve the original private-source exclusion at the relocated path}
+  requirement_trace:
+    - {tasks: [T016, T017, T018], requirements: [REQ-018, REQ-044, REQ-049, REQ-050, REQ-055, REQ-059], status: locally_verified_native_acceptance_pending}
+    - {tasks: [T019, T020, T021, T022, T023, T028], requirements: [REQ-009, REQ-011, REQ-016, REQ-017, REQ-023, REQ-048], status: locally_verified_remote_observer_pending}
+  actual_validation:
+    focused_components: {passed: 94, failed: 0, skipped: 0, exit_code: 0}
+    offline_suite: {passed: 193, failed: 0, skipped: 28, total: 221, exit_code: 0}
+    deploy_validate_local: {exit_code: 0, source_tables: 44, cloud_calls: false, snapshots_regenerated: false}
+    generated_assets: {notebooks: 20, legacy_items: 26, exit_code: 0}
+    ruff: {exit_code: 0}
+    handoff_yaml: {parser: existing_system_Python_PyYAML, exit_code: 0}
+    sql_parser: {schema_batches: 26, procedure_batches: 29, syntax_errors: 0, native_execution: false}
+    real_spark:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest test_spark_runtime.SparkRuntimeTests.test_copy_reconciliation_seals_real_spark_rows_before_sql_callbacks test_spark_runtime.SparkRuntimeTests.test_manifest_multifile_csv_preserves_values_filenames_and_strict_headers -q
+      environment: Installed Eclipse Adoptium JDK 8 and pinned deployment Python; process-local overrides only
+      passed: 2
+      failed: 0
+      skipped: 0
+      exit_code: 0
+      duration_seconds: 22.819
+    initial_windows_delta_replay_attempt:
+      command: >-
+        deployment\.venv\Scripts\python.exe -B -c
+        "import faulthandler,unittest; faulthandler.dump_traceback_later(600,exit=True);
+        unittest.main(module=None,argv=['unittest','test_append_only_runtime.AppendOnlyRuntimeTests.test_projection_order_changes_preserve_physical_schema_and_business_versions','-q'])"
+      tests_executed: 0
+      exit_code: 1
+      blocker: Approved Windows Hadoop native runtime is not configured
+      exact_error: "java.io.FileNotFoundException: HADOOP_HOME and hadoop.home.dir are unset"
+      action: No unapproved Windows native binaries installed; subsequent isolated Linux Delta replay passed
+    initial_jvm_attempt:
+      tests_executed: 0
+      exit_code: 1
+      exact_error: "java.lang.UnsupportedOperationException: getSubject is not supported"
+      resolution: Rerun real Spark with the installed Spark-supported JVM
+  remaining_gates:
+    - Native TDS and new generated-pipeline failure/recovery acceptance
+    - Controlled FTP/SFTP observer, authentication and before/after Copy membership timing
+    - Native Fabric Delta, connector and generated-DAG execution
+    - Full retained transformation recovery and generated-DAG Fabric acceptance
+    - Generic Gold, MLV, layout and full installer/cutover phases
+
+replacement_first_batch:
+  batch_id: metadata-generic-gold-publication-B06
+  date: "2026-11-09"
+  scope: Local generic Gold execution and explicit journaled reusable asset publication before legacy deletion
+  full_refactor_status: in_progress
+  user_choice: Complete the generic replacement first, then remove the legacy artefacts
+  completed_tasks: []
+  local_component_tasks: [T035, T050, T051, T052, T053, T054]
+  blocked_tasks:
+    - {task_id: T035, reason: Generic Gold components pass locally but upstream and native acceptance remain open, required_task_ids: [T028, T034]}
+    - {task_id: T050, reason: Publication is implemented but approved metadata binding/activation and upstream MLV/layout integration remain open, required_task_ids: [T038, T043, T048]}
+    - {task_id: T053, reason: Legacy inventory retirement waits for the full reusable replacement, required_task_ids: [T035, T039, T045, T052]}
+    - {task_id: T063, reason: Native parity and rollback evidence plus A3 approval are absent, required_task_ids: [T061, T062]}
+  files_changed:
+    T035:
+      - {file: artefacts/orchestrator/treasury_gold_orchestration.py, change_type: created, description: Scoped source storage, fenced Gold objects, dependency fan-in and immutable reconciliation receipts}
+      - {file: artefacts/orchestrator/treasury_orchestration.py, change_type: modified, description: Reuse validated native DAG execution for prepared Silver and Gold dispatches}
+      - {file: deployment/src/fabric_treasury_deployer/orchestrator.py, change_type: modified, description: Five generic notebook types with full layer-specific worker hashes and explicit Gold source bindings}
+      - {file: deployment/src/fabric_treasury_deployer/definitions.py, change_type: modified, description: Selected Gold reservation/export/run/reconcile/callback gate without unsupported nested conditionals}
+      - {file: artefacts/orchestrator/notebooks/nb_orchestrate_gold.ipynb, change_type: created, description: Generated Gold-bound parent without active source contracts}
+      - {file: artefacts/orchestrator/notebooks/nb_gold_worker.ipynb, change_type: created, description: Generated fenced Gold worker with native reference-run identity}
+      - {file: deployment/tests/test_gold_notebooks.py, change_type: created, description: Packaging, clean namespaces, source isolation, object failure, fan-in and callback readiness}
+    T050:
+      - {file: deployment/src/fabric_treasury_deployer/deployer.py, change_type: modified, description: Opt-in 10-item publication with prerequisite checks and mode-specific persistent operation reconciliation}
+      - {file: deployment/tests/test_metadata_deployment.py, change_type: created, description: Fake-client publication, dry-run, prerequisite, resume and no-reseeding contracts}
+    T051:
+      - {file: deployment/src/fabric_treasury_deployer/cli.py, change_type: modified, description: Explicit metadata-assets mode and no-authentication generic local validation}
+      - {file: deployment/deploy.ps1, change_type: modified, description: Forward explicit metadata asset and control connection options}
+      - {file: deployment/tests/test_cli.py, change_type: modified, description: Validate mode/state constraints before cloud client creation}
+    T053:
+      - {file: deployment/build.py, change_type: modified, description: Generate five reusable notebooks and derive displayed counts while retaining legacy outputs}
+      - {file: artefacts/orchestrator/notebooks/nb_prepare_medallion_run.ipynb, change_type: modified, description: Regenerated bundle and selected-layer descriptor}
+      - {file: artefacts/orchestrator/notebooks/nb_orchestrate_silver.ipynb, change_type: modified, description: Regenerated shared controller hash}
+      - {file: artefacts/orchestrator/notebooks/nb_silver_worker.ipynb, change_type: modified, description: Regenerated shared controller hash}
+    T054:
+      - {file: deployment/tests/test_metadata_notebooks.py, change_type: modified, description: Validate layer-specific packaged hashes across all generic notebooks}
+      - {file: deployment/tests/test_metadata_pipeline.py, change_type: modified, description: Verify Gold reservation and failed/successful callback topology}
+      - {file: deployment/tests/test_orchestrator_sql.py, change_type: modified, description: Independently hash every normalized worker bundle source}
+    T055:
+      - {file: deployment/README.md, change_type: modified, description: Document gated publication, journal modes and the remaining unbound draft}
+      - {file: artefacts/orchestrator/README.md, change_type: modified, description: Distinguish locally connected Gold/publication from native acceptance}
+      - {file: artefacts/medallion/README.md, change_type: modified, description: Document all five generic outputs without retiring source chains}
+      - {file: artefacts/gold/README.md, change_type: modified, description: Describe generic Gold and retained compatibility/MLV authoring}
+  upstream_artifacts_consumed:
+    - {artifact: docs/plans/metadata-driven-medallion/plan.md, used_for: T035 and T050-T055 dependency and approval boundaries}
+    - {artifact: metadatadriven-medallion-requirements.md, used_for: Pinned runtime configuration, source commits, notebook DAGs and safe recovery}
+    - {artifact: docs/plans/metadata-driven-medallion/redundancy-assessment.md, used_for: Replacement-first deletion inventory and explicit retention exclusions}
+  source_references:
+    - file: artefacts/gold/treasury_gold.py
+      methods_reused: [gold_config_from_manifest, prepare_gold, build_gold_dag, build_gold_object, load_gold_result, finalize_gold, fail_gold_release]
+      preservation: Existing SCD2, fact correction, source membership and release/version algorithms remain unchanged
+    - file: artefacts/orchestrator/treasury_orchestration.py
+      methods_reused: [notebook_layer_dispatch, prepare_silver_contexts, resolve_worker_task, run_notebook_dag, pipeline_activity_evidence, write_pipeline_callbacks]
+      preservation: Immutable dispatch validation, bounded result transport and no-blind-retry semantics retained
+  evidence_mapping:
+    - {upstream: "plan.md#T035", output: Generic Gold notebooks and coordinator, evidence: test_gold_notebooks and test_gold_dag}
+    - {upstream: "plan.md#T050-T052", output: Explicit metadata-assets publication mode, evidence: test_metadata_deployment and test_cli}
+    - {upstream: "plan.md#T053-T054", output: Layer-specific generated packages and derived gated inventory, evidence: build.py --metadata --check and notebook/pipeline contract tests}
+  traceability:
+    - {requirements: [REQ-027, REQ-031, REQ-032, REQ-045, REQ-047, REQ-048, REQ-049], plan_item: "6.2", task: T035, status: local_components_verified_acceptance_blocked}
+    - {requirements: [REQ-007, REQ-050, REQ-051, REQ-052], plan_item: "9.1", tasks: [T050, T051, T052], status: local_publication_verified_full_binding_pending}
+    - {requirements: [REQ-001, REQ-044, REQ-048, REQ-053], plan_item: "9.2", tasks: [T053, T054], status: partial_legacy_normal_inventory_retained}
+  test_results:
+    initial_gold_contracts: {failures: 1, errors: 4, reason: Missing generic Gold notebook types and coordinator; repaired before integration}
+    focused_gold_and_pipeline:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest test_gold_notebooks test_metadata_notebooks test_metadata_pipeline test_gold_dag test_notebook_dag -q
+      passed: 57
+      failed: 0
+      skipped: 0
+      exit_code: 0
+    preserved_source_and_control:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest test_metadata test_orchestrator_sql test_manifest_ingestion test_pipeline_reconciliation test_runtime_controls test_gold_contracts test_gold_notebooks -q
+      passed: 81
+      failed: 0
+      skipped: 0
+      exit_code: 0
+    offline_suite:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest discover -s deployment\tests -p test_*.py -q
+      total: 260
+      passed: 232
+      failed: 0
+      skipped: 28
+      exit_code: 0
+      duration_seconds: 262.814
+    generated_assets:
+      command: deployment\.venv\Scripts\python.exe -B deployment\build.py --metadata --check
+      notebooks: 22
+      legacy_manifest_items: 26
+      gated_publication_items: 10
+      exit_code: 0
+    generic_local_validation:
+      command: deployment\.venv\Scripts\python.exe -B deployment\deploy.py --validate-local --bootstrap-orchestrator --metadata-assets
+      exit_code: 0
+      authentication: false
+      cloud_calls: false
+    ruff: {exit_code: 0, scope: Changed runtime, compiler, installer and test files}
+    powershell_wrapper: {syntax_errors: 0, cloud_calls: false}
+    preserved_legacy_outputs: {notebooks: 17, manifest_items: 26, git_content_diff: false}
+  implementation_notes:
+    - Gold coordination is isolated in a shared module rather than duplicating business algorithms in generated notebooks.
+    - Gold callback metrics omit unknown mutation counts; output population counts are not mislabeled as rows written.
+    - Runtime currentRunId is used only for actual reference workers; the parent pipeline activity proof remains a separate identity.
+    - Generic publication binds definitions but leaves the initial SQL draft unbound and inactive.
+    - The source-specific notebooks, standalone Gold wrapper/notebook, MLV authoring and normal legacy inventory remain intact.
+  documentation_source:
+    runtime_identity: https://learn.microsoft.com/en-us/fabric/data-engineering/notebookutils/notebookutils-runtime
+  protocol_violation: false
+  errors: []
+  warnings:
+    - {severity: HIGH, message: Full metadata binding/activation, MLV/layout integration and native acceptance are incomplete; no legacy deletion is performed.}
+    - {severity: HIGH, message: The 28 opt-in skips are not native Fabric or Spark/Delta acceptance evidence.}
+  remote_operations: false
+  deleted_files: []
+  committed: false
+
+local_retirement_batch:
+  batch_id: metadata-local-binding-mlv-layout-retirement-B07
+  date: "2026-11-09"
+  scope: Local bindings, MLV/layout components, runtime quality and repository retirement
+  full_refactor_status: in_progress_native_acceptance_and_serving_integration_open
+  completed_tasks: []
+  local_component_tasks: [T031, T032, T033, T034, T035, T036, T039, T040, T041, T042, T043, T044, T045, T046, T047, T048, T050, T051, T052, T053, T054, T055]
+  user_decisions:
+    execution: Local-only implementation first
+    sources: Existing Fabric SQL pseudo sources; no current FTP/SFTP connector execution
+    deployed_retirement: Review exact deployed IDs and approval separately later
+  files_changed:
+    binding:
+      - deployment/src/fabric_treasury_deployer/configuration.py
+      - deployment/configure.py
+      - deployment/src/fabric_treasury_deployer/deployer.py
+      - deployment/src/fabric_treasury_deployer/cli.py
+      - deployment/deploy.ps1
+      - deployment/tests/test_configuration_binding.py
+      - deployment/tests/test_metadata_deployment.py
+      - deployment/tests/test_cli.py
+    mlv:
+      - artefacts/orchestrator/treasury_mlv.py
+      - artefacts/orchestrator/treasury_gold_orchestration.py
+      - deployment/src/fabric_treasury_deployer/fabric.py
+      - deployment/src/fabric_treasury_deployer/gold.py
+      - deployment/src/fabric_treasury_deployer/orchestrator.py
+      - artefacts/gold/nb_treasury_gold_mlv_definitions.ipynb
+      - deployment/tests/test_mlv_lifecycle.py
+      - deployment/tests/test_mlv_client.py
+    layout_and_quality:
+      - artefacts/orchestrator/treasury_layout.py
+      - artefacts/orchestrator/treasury_orchestration.py
+      - artefacts/medallion/treasury_ingestion.py
+      - artefacts/medallion/treasury_rules.py
+      - artefacts/gold/treasury_gold.py
+      - deployment/tests/test_layout_contracts.py
+      - deployment/tests/test_layout_runtime.py
+      - deployment/tests/test_gold_quality.py
+      - deployment/tests/test_gold_runtime.py
+    retirement:
+      - deployment/build.py
+      - deployment/src/fabric_treasury_deployer/inventory.py
+      - deployment/src/fabric_treasury_deployer/contracts.py
+      - deployment/src/fabric_treasury_deployer/definitions.py
+      - deployment/manifest.json
+      - deployment/tests/test_reusable_retirement.py
+      - deployment/tests/test_orchestration_local.py
+      - deployment/tests/test_contracts.py
+      - deployment/tests/test_deployer.py
+    generated:
+      - artefacts/orchestrator/notebooks/nb_prepare_medallion_run.ipynb
+      - artefacts/orchestrator/notebooks/nb_orchestrate_silver.ipynb
+      - artefacts/orchestrator/notebooks/nb_silver_worker.ipynb
+      - artefacts/orchestrator/notebooks/nb_orchestrate_gold.ipynb
+      - artefacts/orchestrator/notebooks/nb_gold_worker.ipynb
+  upstream_artifacts_consumed:
+    - {artifact: docs/plans/metadata-driven-medallion/plan.md, used_for: Phase 7-10 requirements and explicit native approval boundaries}
+    - {artifact: metadatadriven-medallion-requirements.md, used_for: Pinned authority, source fidelity, MLV lifecycle, one layout selector and safe rollback}
+    - {artifact: docs/plans/metadata-driven-medallion/redundancy-assessment.md, used_for: Exact 16-file local deletion set and retained historical compatibility}
+  source_references:
+    - {file: deployment/src/fabric_treasury_deployer/contracts.py, methods: [load_sources, owned_inventory], preservation: Historical registry hashes and source table contracts remain unchanged; only normal inventory changes}
+    - {file: artefacts/medallion/treasury_ingestion.py, methods: [manifest_processing_context, append_silver], preservation: Source hash/commit semantics retained; generic layout inspection precedes writes}
+    - {file: artefacts/gold/treasury_gold.py, methods: [gold_config_from_manifest, build_gold_object, _merge_gold, register_gold_mlvs], preservation: Original grains/corrections and compatibility wrapper retained; metadata MLV execution cannot bypass lifecycle}
+  implementation_notes:
+    - Binding fills source connection and SQL geometry in a new content-addressed inactive draft without fabricating capability evidence.
+    - Configuration lifecycle commands export one parameterized SQL operation; they do not activate or submit cloud work.
+    - Normal runtime publication never recreates or reseeds source databases.
+    - MLV metadata conversion validates all eleven shipped aggregates and widened SUM(decimal) output precision.
+    - MLV job controls use documented selected-lineage and item-job routes, persist uncertainty before submission, and redact raw service failure text.
+    - Generic layout adapters preserve historical targets and require explicit new-target decisions; liquid remains runtime-evidence gated.
+    - Gold runtime checks preserve rows; warnings are retained and unsupported engine or row-drop semantics fail explicitly.
+    - Historical definition constructors remain review/replay tools and are not part of normal generated outputs.
+  evidence_mapping:
+    - {upstream: "T050-T052", output: Bound draft publication and configure.py lifecycle exports, evidence: test_configuration_binding and test_metadata_deployment}
+    - {upstream: "T039-T043", output: MLV runtime/client/metadata adapters and Gold runtime checks, evidence: test_mlv_lifecycle, test_mlv_client and test_gold_quality}
+    - {upstream: "T044-T048", output: Layout prewrite/maintenance/migration-preview helpers and Silver/Gold hooks, evidence: test_layout_contracts and test_layout_runtime}
+    - {upstream: "T053-T055", output: Six reusable notebook outputs and derived 11-item inventory, evidence: test_reusable_retirement and build.py --check}
+  traceability:
+    - {requirements: [REQ-001, REQ-002, REQ-006, REQ-007, REQ-051, REQ-052, REQ-053], status: local_binding_and_inventory_verified}
+    - {requirements: [REQ-032, REQ-034, REQ-035, REQ-036, REQ-037, REQ-038, REQ-050], status: local_mlv_adapters_verified_native_serving_proof_open}
+    - {requirements: [REQ-039, REQ-040, REQ-041, REQ-042, REQ-043, REQ-059], status: local_layout_contracts_verified_native_execution_and_migration_open}
+    - {requirements: [REQ-054, REQ-060], status: local_retirement_preserves_historical_contracts_native_cutover_not_performed}
+  test_results:
+    final_offline_suite:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest discover -s deployment\tests -p test_*.py -q
+      total: 364
+      passed: 326
+      failed: 0
+      skipped: 38
+      exit_code: 0
+      duration_seconds: 339.243
+    previous_stable_offline_suite: {total: 364, passed: 326, failed: 0, skipped: 38, exit_code: 0, duration_seconds: 278.072}
+    replacement_selector:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest test_mlv_lifecycle test_mlv_client test_layout_contracts test_layout_runtime test_configuration_binding test_gold_contracts test_gold_notebooks test_gold_dag test_orchestration_local test_metadata_rules test_manifest_ingestion -q
+      total: 148
+      passed: 141
+      failed: 0
+      skipped: 7
+      exit_code: 0
+    redacted_mlv_and_packaging:
+      command: deployment\.venv\Scripts\python.exe -B -m unittest test_mlv_lifecycle test_mlv_client test_metadata_notebooks test_gold_notebooks test_reusable_retirement -q
+      total: 87
+      passed: 82
+      failed: 0
+      skipped: 5
+      exit_code: 0
+    real_local_spark:
+      silver_quality: {passed: 1, failed: 0, exit_code: 0, duration_seconds: 22.620}
+      gold_quality: {passed: 3, failed: 0, exit_code: 0, duration_seconds: 63.354}
+      mlv_reconciliation: {passed: 5, failed: 0, exit_code: 0, duration_seconds: 73.632}
+      environment: Installed JDK 8 and existing pinned Python dependencies; process-local configuration only
+      limitations: Not Fabric MLV DDL, service jobs, SQL/Delta native acceptance or physical migration
+    generated_assets: {notebooks: 6, items: 11, exit_code: 0}
+    validate_local: {source_tables: 44, columns: 1619, exit_code: 0, authentication: false, cloud_calls: false}
+    configure_cli: {commands: [bind, preview, export_register, export_activate, export_rollback], exit_code: 0, temporary_fixture_only: true, cloud_calls: false}
+    ruff: {exit_code: 0, scope: Changed runtime/compiler/installer and all deployment tests}
+    powershell: {parser_errors: 0, custom_control_argument_forwarding: passed, cloud_calls: false}
+    initial_failures_repaired:
+      - Gold generic rules initially required Silver baseline handlers; a separate explicit Gold scope now preserves Silver's mandatory baseline.
+      - A layout test expected lowercase SQL type text; corrected to match valid uppercase TIMESTAMP_NTZ DDL.
+      - One full run overlapped runtime edits and correctly rejected stale generated notebooks; regenerated and reran against a stable package.
+  repository_retirement:
+    deleted_notebooks: 16
+    assessed_scope: docs/plans/metadata-driven-medallion/redundancy-assessment.md#file-deletion-inventory
+    remaining_notebooks: 6
+    normal_items: 11
+    preserved: [Shared algorithms, Frozen source/Gold fixtures, Source registry and seeds, Historical definition builders, Sequential Gold compatibility wrapper, Original extraction template, Controlled MLV definition preview]
+  native_status:
+    read_only_discovery: Existing workspace and active F16 capacity observed; no scaling
+    mutating_operations: false
+    metadata_activation: not_run
+    full_SQL_Copy_DAG_acceptance: not_run
+    native_MLV_refresh_and_mode_observer: not_verified
+    native_layout_and_consumer_compatibility: not_verified
+    target_specific_physical_migration: not_implemented_without_reviewed_target_contract
+    FTP_SFTP: deferred_by_user
+    A3_cutover: not_performed
+    A4_deployed_deletion: not_performed
+  protocol_violation: false
+  errors: []
+  warnings:
+    - {severity: HIGH, message: Full native acceptance is not complete. Local tests and repository deletion do not pass cutover or decommissioning gates.}
+    - {severity: HIGH, message: MLV execution requires real serving ownership and retained actual-mode evidence; the preview notebook does not fabricate those adapters.}
+    - {severity: HIGH, message: Physical migration requires an isolated target/cutover contract and proof; ordinary metadata changes never rewrite historical tables.}
+  committed: false

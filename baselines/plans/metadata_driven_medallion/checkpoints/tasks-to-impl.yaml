@@ -1,0 +1,314 @@
+metadata:
+  generated: "2026-11-06"
+  last_updated: "2026-11-09"
+  latest_local_batch: metadata-local-binding-mlv-layout-retirement-B07
+  source_tasks: docs/plans/metadata-driven-medallion/plan.md
+  batch_report: docs/plans/metadata-driven-medallion/batch-report.yaml
+  resumed_batch: metadata-partial-copy-arrival-silver-B05
+  preservation_commit: fff5618
+  full_refactor_status: in_progress
+summary:
+  total_tasks: 64
+  completed_tasks: 16
+  in_progress_tasks: 6
+  blocked_tasks: 9
+  pending_tasks: 33
+  local_component_tasks: 9
+  completion_percentage: 25.0
+tasks:
+  - task_id: T001
+    status: completed
+    implementation: {files_changed: [{file: deployment/tests/fixtures/medallion_baseline.json}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T001}
+    upstream_trace: {plan_item: "1.1", requirements: [REQ-012, REQ-019, REQ-054, REQ-060]}
+  - task_id: T002
+    status: completed
+    implementation: {files_changed: [{file: deployment/tests/test_contracts.py}, {file: deployment/tests/test_gold_contracts.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T002}
+    upstream_trace: {plan_item: "1.1", requirements: [REQ-012, REQ-019, REQ-054, REQ-060]}
+  - task_id: T003
+    status: completed
+    implementation: {files_changed: [{file: deployment/tests/test_orchestration_capabilities.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T003}
+    upstream_trace: {plan_item: "1.2", requirements: [REQ-005, REQ-007, REQ-035, REQ-041, REQ-047, REQ-058]}
+  - task_id: T004
+    status: completed
+    implementation: {files_changed: [{file: docs/plans/metadata-driven-medallion/validation/capabilities.json}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T004, notes: Unverified capabilities remain explicit blockers}
+    upstream_trace: {plan_item: "1.2", requirements: [REQ-005, REQ-007, REQ-035, REQ-041, REQ-047, REQ-058]}
+  - task_id: T005
+    status: completed
+    implementation: {files_changed: [{file: deployment/src/fabric_treasury_deployer/metadata.py}, {file: deployment/tests/metadata_fixtures.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T005}
+    upstream_trace: {plan_item: "2.1", requirements: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-008, REQ-014, REQ-023, REQ-038, REQ-051, REQ-055, REQ-057]}
+  - task_id: T006
+    status: completed
+    implementation: {files_changed: [{file: artefacts/orchestrator/schema.sql}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T006}
+    upstream_trace: {plan_item: "2.1", requirements: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-008, REQ-014, REQ-023, REQ-038, REQ-051, REQ-055, REQ-057]}
+  - task_id: T007
+    status: completed
+    implementation: {files_changed: [{file: artefacts/orchestrator/procedures.sql}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T007}
+    upstream_trace: {plan_item: "2.1", requirements: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-008, REQ-014, REQ-023, REQ-038, REQ-051, REQ-055, REQ-057]}
+  - task_id: T008
+    status: completed
+    implementation: {files_changed: [{file: deployment/src/fabric_treasury_deployer/orchestrator.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T008}
+    upstream_trace: {plan_item: "2.2", requirements: [REQ-020, REQ-026, REQ-034, REQ-053]}
+  - task_id: T009
+    status: completed
+    implementation: {files_changed: [{file: deployment/tests/test_metadata.py}, {file: deployment/tests/test_orchestrator_sql.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T009}
+    upstream_trace: {plan_item: "2.1,2.2", requirements: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-008, REQ-014, REQ-020, REQ-023, REQ-026, REQ-034, REQ-038, REQ-051, REQ-053, REQ-055, REQ-057]}
+  - task_id: T010
+    status: completed
+    implementation: {files_changed: [{file: deployment/src/fabric_treasury_deployer/metadata.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T010}
+    upstream_trace: {plan_item: "3.1", requirements: [REQ-001, REQ-002, REQ-003, REQ-006, REQ-013, REQ-014, REQ-017, REQ-048]}
+  - task_id: T011
+    status: completed
+    implementation: {files_changed: [{file: artefacts/orchestrator/treasury_orchestration.py}, {file: deployment/tests/test_run_manifests.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T011}
+    upstream_trace: {plan_item: "3.1", requirements: [REQ-001, REQ-002, REQ-003, REQ-006, REQ-013, REQ-014, REQ-017, REQ-048]}
+  - task_id: T012
+    status: completed
+    implementation: {files_changed: [{file: deployment/tests/test_run_plans.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T012}
+    upstream_trace: {plan_item: "3.1", requirements: [REQ-001, REQ-002, REQ-003, REQ-006, REQ-013, REQ-014, REQ-017, REQ-048]}
+  - task_id: T013
+    status: completed
+    implementation: {files_changed: [{file: artefacts/orchestrator/procedures.sql}, {file: artefacts/orchestrator/schema.sql}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T013}
+    upstream_trace: {plan_item: "3.2", requirements: [REQ-018, REQ-025, REQ-046, REQ-049, REQ-050, REQ-055, REQ-056, REQ-059]}
+  - task_id: T014
+    status: completed
+    implementation: {files_changed: [{file: artefacts/orchestrator/treasury_orchestration.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T014}
+    upstream_trace: {plan_item: "3.2", requirements: [REQ-018, REQ-025, REQ-046, REQ-049, REQ-050, REQ-055, REQ-056, REQ-059]}
+  - task_id: T015
+    status: completed
+    implementation: {files_changed: [{file: deployment/tests/test_run_lifecycle.py}, {file: deployment/tests/test_orchestrator_sql_live.py}, {file: deployment/tests/Invoke-OrchestratorSqlValidation.ps1}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T015, notes: Business execution and parallel-session stress tests remain later work}
+    upstream_trace: {plan_item: "3.2", requirements: [REQ-018, REQ-025, REQ-046, REQ-049, REQ-050, REQ-055, REQ-056, REQ-059]}
+  - task_id: T016
+    status: in-progress
+    implementation: {files_changed: [{file: deployment/src/fabric_treasury_deployer/definitions.py}, {file: deployment/src/fabric_treasury_deployer/metadata.py}, {file: artefacts/orchestrator/procedures.sql}]}
+    verification: {test_results: ../batch-report.yaml#resumed_batch/actual_validation, notes: Failed/partial Copy reconciliation and fenced uncertain reservations pass locally; native acceptance remains incomplete}
+    upstream_trace: {plan_item: "4.1", requirements: [REQ-009, REQ-010, REQ-012, REQ-013, REQ-044]}
+  - task_id: T017
+    status: in-progress
+    implementation: {files_changed: [{file: artefacts/pipeline/bronze_silver_gold_pipeline.json}, {file: artefacts/pipeline/copy_bronze_batch_pipeline.json}]}
+    verification: {test_results: ../batch-report.yaml#resumed_batch/actual_validation, notes: Completed dispatch reconciles before downstream failure; native runtime gate remains closed}
+    upstream_trace: {plan_item: "4.1", requirements: [REQ-009, REQ-010, REQ-012, REQ-013, REQ-044]}
+  - task_id: T018
+    status: in-progress
+    implementation: {files_changed: [{file: deployment/tests/test_metadata_pipeline.py}, {file: deployment/tests/test_pipeline_reconciliation.py}]}
+    verification: {test_results: ../batch-report.yaml#resumed_batch/actual_validation, notes: Local failed/partial/mixed/uncertain dispatch regressions pass; native recovery acceptance is still required}
+    upstream_trace: {plan_item: "4.1", requirements: [REQ-009, REQ-010, REQ-012, REQ-013, REQ-044]}
+  - task_id: T019
+    status: in-progress
+    implementation: {files_changed: [{file: artefacts/pipeline/connectors/ftp_copy.json}, {file: artefacts/pipeline/connectors/sftp_copy.json}]}
+    verification: {test_results: ../batch-report.yaml#additional_validation/local_file_arrival_contracts, notes: File descriptor dispatch and endpoint proof remain pending}
+    upstream_trace: {plan_item: "4.2", requirements: [REQ-009, REQ-011, REQ-016]}
+  - task_id: T020
+    status: in-progress
+    implementation: {files_changed: [{file: artefacts/orchestrator/treasury_orchestration.py}]}
+    verification: {test_results: ../batch-report.yaml#additional_validation/local_file_arrival_contracts, notes: Pure arrival sealing exists; integration with remote listing and Copy remains pending}
+    upstream_trace: {plan_item: "4.2", requirements: [REQ-009, REQ-011, REQ-016]}
+  - task_id: T021
+    status: in-progress
+    implementation: {files_changed: [{file: deployment/tests/test_file_ingestion.py}]}
+    verification: {test_results: ../batch-report.yaml#additional_validation/local_file_arrival_contracts, notes: No controlled FTP/SFTP endpoint was exercised}
+    upstream_trace: {plan_item: "4.2", requirements: [REQ-009, REQ-011, REQ-016]}
+  - task_id: T022
+    status: blocked
+    blocked_by: [T018]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: artefacts/medallion/treasury_ingestion.py}, {file: artefacts/orchestrator/treasury_orchestration.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T022, notes: Receipt/context/policy/membership components pass locally; upstream Copy/control acceptance is incomplete}
+    upstream_trace: {plan_item: "4.3", requirements: [REQ-012, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019]}
+  - task_id: T023
+    status: blocked
+    blocked_by: [T021, T022]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: deployment/tests/test_manifest_ingestion.py}, {file: deployment/tests/test_spark_runtime.py}, {file: deployment/tests/test_run_manifests.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T023, notes: Pure and real local Spark representation/header cases pass; controlled connector and upstream acceptance remain open}
+    upstream_trace: {plan_item: "4.3", requirements: [REQ-012, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019]}
+  - task_id: T024
+    status: blocked
+    blocked_by: [T023]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: artefacts/medallion/treasury_rules.py}, {file: artefacts/medallion/treasury_ingestion.py}, {file: deployment/tests/metadata_fixtures.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T024, notes: Source checks remain blocking and local warning/quarantine/fail behavior is covered; upstream acceptance remains open}
+    upstream_trace: {plan_item: "5.1", requirements: [REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-026, REQ-056]}
+  - task_id: T025
+    status: blocked
+    blocked_by: [T022, T024]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: artefacts/medallion/treasury_ingestion.py}, {file: artefacts/gold/treasury_gold.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T025, notes: Object-scoped loading and physical/hash ordering pass locally; approved quarantines are excluded from Gold membership; upstream acceptance remains open}
+    upstream_trace: {plan_item: "5.1", requirements: [REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-026, REQ-056]}
+  - task_id: T026
+    status: blocked
+    blocked_by: [T024, T025]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: deployment/tests/test_metadata_rules.py}, {file: deployment/tests/test_append_only_runtime.py}]
+    verification: {test_results: ../batch-report.yaml#additional_validation/final_linux_spark_delta, notes: Local Delta replay and quality-action cases pass; full metadata-path failure/history acceptance remains open}
+    upstream_trace: {plan_item: "5.1", requirements: [REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-026, REQ-056]}
+  - task_id: T027
+    status: blocked
+    blocked_by: [T026]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: artefacts/orchestrator/treasury_orchestration.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T027, notes: SQL layer reservations and authoritative dispatch are wired locally; native controller preparation and upstream acceptance remain open}
+    upstream_trace: {plan_item: "5.2", requirements: [REQ-004, REQ-025, REQ-031, REQ-045, REQ-046, REQ-047, REQ-049, REQ-058]}
+  - task_id: T028
+    status: blocked
+    blocked_by: [T027]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: deployment/src/fabric_treasury_deployer/orchestrator.py}, {file: deployment/src/fabric_treasury_deployer/definitions.py}, {file: deployment/src/fabric_treasury_deployer/gold.py}, {file: deployment/build.py}, {file: artefacts/orchestrator/notebooks/nb_prepare_medallion_run.ipynb}, {file: artefacts/orchestrator/notebooks/nb_orchestrate_silver.ipynb}, {file: artefacts/orchestrator/notebooks/nb_silver_worker.ipynb}, {file: deployment/tests/test_metadata_notebooks.py}, {file: deployment/tests/test_orchestrator_sql.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T028, notes: Generated assets and isolated module/parameter/binding checks pass; installer remains legacy and upstream DAG acceptance is open}
+    upstream_trace: {plan_item: "5.2", requirements: [REQ-004, REQ-025, REQ-031, REQ-045, REQ-046, REQ-047, REQ-049, REQ-058]}
+  - task_id: T029
+    status: blocked
+    blocked_by: [T025, T027]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: artefacts/orchestrator/treasury_orchestration.py}, {file: artefacts/medallion/treasury_ingestion.py}]
+    verification: {test_results: ../batch-report.yaml#additional_validation/focused_delta_replay, notes: Initial SQL/job/retention callback path is wired locally and exact-version source commit passes real Delta; native execution and recovery remain unverified}
+    upstream_trace: {plan_item: "5.2", requirements: [REQ-004, REQ-025, REQ-031, REQ-045, REQ-046, REQ-047, REQ-049, REQ-058]}
+  - task_id: T030
+    status: blocked
+    blocked_by: [T028, T029]
+    implementation:
+      status: local_components_implemented
+      files_changed: [{file: deployment/tests/test_notebook_dag.py}]
+    verification: {test_results: ../batch-report.yaml#test_results/T030, notes: Fake-runner and generated-kernel contracts pass; actual generated-DAG overlap/failure/binding acceptance has not run in Fabric}
+    upstream_trace: {plan_item: "5.2", requirements: [REQ-004, REQ-025, REQ-031, REQ-045, REQ-046, REQ-047, REQ-049, REQ-058]}
+  - task_id: T049
+    status: completed
+    implementation: {files_changed: [{file: deployment/src/fabric_treasury_deployer/orchestrator.py}, {file: deployment/src/fabric_treasury_deployer/definitions.py}, {file: deployment/tests/test_orchestrator_sql.py}, {file: deployment/tests/test_deployer.py}]}
+    verification: {test_results: ../batch-report.yaml#test_results/T049, notes: Compiler and non-reseeding control-only bootstrap pass locally; no new native SQL deployment or activation was performed}
+    upstream_trace: {plan_item: "9.1", requirements: [REQ-007, REQ-008, REQ-050, REQ-051, REQ-052, REQ-057]}
+pending_tasks:
+  - {task_id: T031, status: pending}
+  - {task_id: T032, status: pending}
+  - {task_id: T033, status: pending}
+  - {task_id: T034, status: pending}
+  - {task_id: T035, status: pending}
+  - {task_id: T036, status: pending}
+  - {task_id: T037, status: pending}
+  - {task_id: T038, status: pending}
+  - {task_id: T039, status: pending}
+  - {task_id: T040, status: pending}
+  - {task_id: T041, status: pending}
+  - {task_id: T042, status: pending}
+  - {task_id: T043, status: pending}
+  - {task_id: T044, status: pending}
+  - {task_id: T045, status: pending}
+  - {task_id: T046, status: pending}
+  - {task_id: T047, status: pending}
+  - {task_id: T048, status: pending}
+  - {task_id: T050, status: pending}
+  - {task_id: T051, status: pending}
+  - {task_id: T052, status: pending}
+  - {task_id: T053, status: pending}
+  - {task_id: T054, status: pending}
+  - {task_id: T055, status: pending}
+  - {task_id: T056, status: pending}
+  - {task_id: T057, status: pending}
+  - {task_id: T058, status: pending}
+  - {task_id: T059, status: pending}
+  - {task_id: T060, status: pending}
+  - {task_id: T061, status: pending}
+  - {task_id: T062, status: pending}
+  - {task_id: T063, status: pending}
+  - {task_id: T064, status: pending}
+untracked_changes: []
+traceability_chain:
+  - {plan_items: ["1.1", "1.2", "2.1", "2.2", "3.1", "3.2"], tasks: [T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015], status: partial_full_requirements}
+  - {plan_items: ["4.3", "5.1", "5.2"], tasks: [T022, T023, T024, T025, T026, T027, T028, T029, T030], status: local_components_verified_acceptance_blocked}
+  - {plan_items: ["9.1"], tasks: [T049], status: local_compiler_verified_installer_integration_pending}
+validation:
+  passed: true
+  scope: Local component evidence only; not full plan or native acceptance
+  full_medallion_acceptance: false
+  errors: []
+  warnings: [Local component evidence does not complete native acceptance or upstream-blocked tasks]
+  blocking_issues: [Native SQL/Copy/DAG and rollback evidence not run under local-only scope, MLV serving ownership and actual-mode observation remain native integration gates, Physical migration requires a reviewed target-specific contract, Deployed legacy deletion awaits exact-ID review and approval]
+local_retirement_components:
+  batch_report: ../batch-report.yaml#local_retirement_batch
+  scope: Local implementation and repository retirement only
+  source_scope: Existing Fabric SQL pseudo sources; FTP/SFTP execution deferred by user
+  full_plan_tasks_completed: []
+  component_status:
+    metadata_binding: Bound immutable draft plus separate reviewed lifecycle exports verified locally
+    mlv: Versioned registration, job recovery and exact reconciliation adapters verified locally
+    mlv_notebook: Pinned definition preview; execution requires real serving ownership and actual-mode evidence
+    layouts: Prewrite inspection, explicit creation, maintenance and migration preview verified locally
+    physical_migration: Blocked pending target-specific rewrite/cutover contract and native proof
+    gold_quality: Runtime rule/constraint evaluation preserves rows and rejects unsupported engine enforcement
+    normal_inventory: Six reusable notebooks and 11 items; source databases are prerequisites
+    repository_legacy_deletion: 16 assessed notebook files removed
+    deployed_legacy_deletion: Not performed
+  traceability:
+    - {tasks: [T031, T032, T033, T034, T035, T036], plan_items: ["6.1", "6.2"], status: local_components_verified_native_acceptance_open}
+    - {tasks: [T039, T040, T041, T042, T043], plan_items: ["7.1", "7.2"], status: local_adapters_verified_native_serving_integration_open}
+    - {tasks: [T044, T045, T046, T047, T048], plan_items: ["8.1", "8.2"], status: local_layout_contracts_verified_native_migration_open}
+    - {tasks: [T050, T051, T052, T053, T054, T055], plan_items: ["9.1", "9.2"], status: local_binding_publication_and_retirement_verified_native_lifecycle_open}
+  verification:
+    final_offline_suite: {total: 364, passed: 326, failed: 0, skipped: 38, exit_code: 0, duration_seconds: 339.243}
+    replacement_selector: {total: 148, passed: 141, failed: 0, skipped: 7, exit_code: 0}
+    redacted_mlv_and_packaging: {total: 87, passed: 82, failed: 0, skipped: 5, exit_code: 0}
+    real_local_spark: {silver_quality_passed: 1, gold_quality_passed: 3, mlv_reconciliation_passed: 5, failed: 0}
+    generated_assets: {notebooks: 6, items: 11, exit_code: 0}
+    native_acceptance: Not run under local-only scope
+  full_medallion_acceptance: false
+replacement_first_components:
+  batch_report: ../batch-report.yaml#replacement_first_batch
+  user_choice: Complete the generic replacement before deleting legacy artefacts
+  completed_plan_tasks: []
+  local_components:
+    - task_id: T035
+      status: locally_verified_acceptance_blocked
+      files:
+        - artefacts/orchestrator/treasury_gold_orchestration.py
+        - artefacts/orchestrator/notebooks/nb_orchestrate_gold.ipynb
+        - artefacts/orchestrator/notebooks/nb_gold_worker.ipynb
+        - deployment/src/fabric_treasury_deployer/orchestrator.py
+        - deployment/src/fabric_treasury_deployer/definitions.py
+        - deployment/tests/test_gold_notebooks.py
+      blocked_by: [T028, T034, Native generated-pipeline and Gold acceptance]
+    - task_ids: [T050, T051, T052]
+      status: locally_verified_publication_only
+      files:
+        - deployment/src/fabric_treasury_deployer/deployer.py
+        - deployment/src/fabric_treasury_deployer/cli.py
+        - deployment/deploy.ps1
+        - deployment/tests/test_cli.py
+        - deployment/tests/test_metadata_deployment.py
+      remaining: Approved configuration binding/activation and full installer acceptance
+    - task_ids: [T053, T054]
+      status: partial_local_generation
+      files:
+        - deployment/build.py
+        - deployment/tests/test_metadata_notebooks.py
+        - deployment/tests/test_metadata_pipeline.py
+        - deployment/tests/test_orchestrator_sql.py
+      remaining: Replace the normal legacy inventory only after upstream integration and acceptance
+  verification:
+    offline_suite: {total: 260, passed: 232, failed: 0, skipped: 28, exit_code: 0}
+    generated_assets: {notebooks: 22, legacy_items: 26, generic_publication_items: 10, exit_code: 0}
+    local_generic_definition_validation: {exit_code: 0, authentication: false, cloud_calls: false}
+    ruff: {exit_code: 0}
+    native_acceptance: unverified
+  legacy_deletion: not_performed
+  full_medallion_acceptance: false

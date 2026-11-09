@@ -1,0 +1,49 @@
+{
+  "name": "copy_sftp_to_bronze",
+  "type": "Copy",
+  "dependsOn": [],
+  "policy": {"timeout": "0.12:00:00", "retry": 0, "secureInput": true, "secureOutput": true},
+  "typeProperties": {
+    "source": {
+      "type": "BinarySource",
+      "storeSettings": {
+        "type": "SftpReadSettings",
+        "recursive": {"value": "@item().recursive", "type": "Expression"},
+        "wildcardFolderPath": {"value": "@item().source_directory", "type": "Expression"},
+        "wildcardFileName": {"value": "@item().file_pattern", "type": "Expression"},
+        "deleteFilesAfterCompletion": false
+      },
+      "formatSettings": {"type": "BinaryReadSettings"},
+      "datasetSettings": {
+        "annotations": [], "type": "Binary", "schema": [],
+        "typeProperties": {"location": {"type": "SftpLocation"}},
+        "connectionSettings": {
+          "name": "metadata_sftp_source",
+          "properties": {
+            "annotations": [], "type": "Sftp", "typeProperties": {},
+            "externalReferences": {"connection": "@item().connection_id"}
+          }
+        }
+      }
+    },
+    "sink": {
+      "type": "BinarySink",
+      "storeSettings": {"type": "LakehouseWriteSettings", "copyBehavior": "PreserveHierarchy"},
+      "datasetSettings": {
+        "annotations": [], "type": "Binary", "schema": [],
+        "typeProperties": {
+          "location": {"type": "LakehouseLocation", "folderPath": {"value": "@item().folder_path", "type": "Expression"}}
+        },
+        "linkedService": {
+          "name": "metadata_bronze_lakehouse",
+          "properties": {
+            "annotations": [], "type": "Lakehouse",
+            "typeProperties": {"workspaceId": "__WORKSPACE_ID__", "artifactId": "__BRONZE_LAKEHOUSE_ID__", "rootFolder": "Files"}
+          }
+        }
+      }
+    },
+    "enableStaging": false,
+    "validateDataConsistency": true
+  }
+}

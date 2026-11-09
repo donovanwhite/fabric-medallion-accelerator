@@ -1,0 +1,51 @@
+{
+  "solution": "Metadata medallion accelerator",
+  "version": 3,
+  "use_case": "inventory_example",
+  "items": [
+    {
+      "displayName": "db_orchestrator",
+      "type": "SQLDatabase"
+    },
+    {
+      "displayName": "lh_brz_slv_inventory_example",
+      "type": "Lakehouse"
+    },
+    {
+      "displayName": "lh_gld_inventory_example",
+      "type": "Lakehouse"
+    },
+    {
+      "displayName": "nb_inventory_example_prepare_medallion_run",
+      "type": "Notebook"
+    },
+    {
+      "displayName": "nb_inventory_example_orchestrate_silver",
+      "type": "Notebook"
+    },
+    {
+      "displayName": "nb_inventory_example_silver_worker",
+      "type": "Notebook"
+    },
+    {
+      "displayName": "nb_inventory_example_orchestrate_gold",
+      "type": "Notebook"
+    },
+    {
+      "displayName": "nb_inventory_example_gold_worker",
+      "type": "Notebook"
+    },
+    {
+      "displayName": "nb_inventory_example_gold_mlv_definitions",
+      "type": "Notebook"
+    },
+    {
+      "displayName": "pl_inventory_example_copy_bronze_batch",
+      "type": "DataPipeline"
+    },
+    {
+      "displayName": "pl_inventory_example_bronze_silver_gold",
+      "type": "DataPipeline"
+    }
+  ]
+}

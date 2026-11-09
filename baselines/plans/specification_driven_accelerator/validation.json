@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-11-09",
+  "scope": "Local multi-case separation and metadata-driven SQL connector support",
+  "status": "locally_verified_not_native_certified",
+  "baseline_version": "1.1.0",
+  "baseline_policy_sha256": "1c9ae9fe25ef94c4528abe8887cbf507b6d613a2133f0979cc60dfd4b7f6f56c",
+  "parity_revision": "4d76d7f5e3278ca4b16ed6e3e78ae14b4349b194",
+  "full_regression": {
+    "command": ".\\deployment\\.venv\\Scripts\\python.exe -B -m unittest discover -s deployment\\tests -p \"test_*.py\" -q",
+    "environment": {
+      "PYTHONPATH": "deployment\\src"
+    },
+    "tests": 451,
+    "passed": 412,
+    "skipped": 39,
+    "failures": 0,
+    "errors": 0,
+    "duration_seconds": 506.689,
+    "exit_code": 0,
+    "includes_latest_case_and_resource_guards": true,
+    "includes_case_fixture_discovery": true,
+    "includes_agnostic_artefact_guards": true,
+    "includes_sql_server_and_fabric_sql_adapter_contracts": true,
+    "native_acceptance": false
+  },
+  "focused_checks": [
+    {
+      "scope": "SQL connectors, metadata dispatch, binding, compiler, publication and notebook compatibility",
+      "modules": [
+        "test_sql_connectors",
+        "test_metadata_pipeline",
+        "test_configuration_binding",
+        "test_fabric",
+        "test_orchestrator_sql",
+        "test_spec_compiler",
+        "test_deployer",
+        "test_cli",
+        "test_multi_case",
+        "test_metadata_notebooks",
+        "test_gold_notebooks"
+      ],
+      "tests": 109,
+      "passed": 109,
+      "duration_seconds": 102.345,
+      "exit_code": 0
+    },
+    {
+      "scope": "Distinct SQL connector templates, mixed source binding, managed authentication/gateways and SQL control contracts",
+      "tests": 49,
+      "passed": 49,
+      "duration_seconds": 15.094,
+      "exit_code": 0
+    },
+    {
+      "scope": "Prior agnostic-pass asset paths, source contracts, domain parity and shared-artefact guards; also covered by current full regression",
+      "tests": 36,
+      "passed": 36,
+      "duration_seconds": 15.194,
+      "exit_code": 0
+    },
+    {
+      "scope": "Synthetic fixture discovery bridge",
+      "tests": 23,
+      "passed": 23,
+      "exit_code": 0
+    },
+    {
+      "scope": "Real local Spark calendar isolation",
+      "test": "test_case_calendar.CaseCalendarTests.test_january_case_does_not_inherit_april_fiscal_year",
+      "tests": 1,
+      "passed": 1,
+      "duration_seconds": 65.650,
+      "environment": {
+        "MEDALLION_SPARK_TESTS": "1",
+        "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.504.1-hotspot"
+      },
+      "assertions": [
+        "January-start fiscal year: 2026-01 maps to year 2026, month 1",
+        "April-start fiscal year: 2026-01 maps to year 2025, month 10",
+        "Calendar basis remains explicitly declared"
+      ],
+      "native_fabric_execution": false
+    }
+  ],
+  "cases": {
+    "treasury": {
+      "adapter": "snapshot_bootstrap",
+      "compile_check": "passed",
+      "build_check": "passed",
+      "validate_local": "passed",
+      "notebooks": 6,
+      "runtime_manifest_items": 11,
+      "derived_markdown_files": 103,
+      "output_directory": "use_cases/treasury/generated",
+      "metadata_status": "draft_unbound_unapproved"
+    },
+    "inventory_example": {
+      "adapter": "compiled",
+      "compile_check": "passed",
+      "build_check": "passed",
+      "validate_local": "passed",
+      "notebooks": 6,
+      "runtime_manifest_items": 11,
+      "derived_markdown_files": 13,
+      "output_directory": "use_cases/inventory_example/generated",
+      "metadata_status": "draft_unbound_unapproved",
+      "requires_treasury_snapshots": false
+    }
+  },
+  "case_commands": [
+    "python deployment\\specifications.py compile --use-case <case> --check",
+    "python deployment\\build.py --use-case <case> --check",
+    "python deployment\\deploy.py --use-case <case> --validate-local"
+  ],
+  "governance_and_structure": {
+    "required_baseline_ids": 23,
+    "legacy_requirements_crosswalk": 60,
+    "markdown_files_checked": 163,
+    "missing_local_link_targets": 0,
+    "shared_generated_notebooks_remaining": 0,
+    "repository_global_deployment_manifest_remaining": false,
+    "raw_extracted_or_pdf_untracked_candidates": 0,
+    "git_diff_check": "passed"
+  },
+  "treasury_preservation": {
+    "audit": "use_cases/treasury/contracts/provenance_rebaseline.json",
+    "csv_files": 44,
+    "tables": 44,
+    "columns": 1619,
+    "rows": 56414,
+    "csv_bytes_match_original_manifest_hashes": true,
+    "source_contract_hashes_unchanged": true,
+    "business_contracts_unchanged": true,
+    "source_registry_working_bytes_preserved": true,
+    "source_data_regenerated": false
+  },
+  "lint": {
+    "shared_runtime_deployment_compiler_and_case_extensions": "passed",
+    "relocated_fixture_style_findings": 11,
+    "same_findings_verified_at_parity_revision": true,
+    "unchanged_style_rules": {
+      "FURB167": 4,
+      "SIM114": 4,
+      "SIM117": 1,
+      "SIM102": 2
+    },
+    "note": "Historical fixture algorithms were not restyled as part of provenance-preserving relocation."
+  },
+  "agnostic_artefacts": {
+    "shared_files": 22,
+    "shared_python_modules": 7,
+    "treasury_named_shared_files": 0,
+    "treasury_literals_in_shared_sources": 0,
+    "shared_csv_files": 0,
+    "case_fixture_root": "use_cases/treasury/fixtures",
+    "case_historical_pipeline": "use_cases/treasury/contracts/full_snapshot_pipeline.json",
+    "deployer_namespace": "fabric_medallion_deployer",
+    "cli_name": "fabric-medallion-deploy",
+    "actual_runtime_source_contract_hashes_unchanged": true,
+    "source_registry_and_schema_bytes_unchanged": true,
+    "previous_documentation_changes_preserved": true
+  },
+  "wheel_packaging": {
+    "command": "python -m pip wheel .\\deployment --no-deps --wheel-dir <output> --disable-pip-version-check --quiet",
+    "exit_code": 0,
+    "wheel": "fabric_medallion_deployer-0.1.0-py3-none-any.whl",
+    "neutral_namespace_and_cli_verified": true,
+    "former_namespace_in_wheel": false,
+    "latest_sql_server_metadata_and_preflight_in_wheel": true,
+    "note": "uv could not fetch the declared hatchling backend in this environment; pip built the wheel without disabling TLS verification."
+  },
+  "sql_connector_support": {
+    "baseline_version": "1.1.0",
+    "source_family": "sql",
+    "selection": "Pinned cfg.connection_ref.connector_type exported through ctl.usp_copy_task_page",
+    "fabric_sql_database": {
+      "connector_type": "FabricSql",
+      "authentication_type": "OAuth2",
+      "template": "artefacts/pipeline/connectors/fabric_sql_database_copy.json",
+      "requires_fabric_workspace_and_artifact_geometry": true
+    },
+    "sql_server": {
+      "connector_type": "SqlServer",
+      "authentication_type": "Basic",
+      "template": "artefacts/pipeline/connectors/sql_server_copy.json",
+      "managed_connection_api_type": "SQL",
+      "requires_fabric_database_item": false,
+      "supported_connectivity": ["ShareableCloud", "OnPremisesGateway", "VirtualNetworkGateway"],
+      "native_copy_capability": "sql-server-copy-basic",
+      "native_evidence_required_even_if_object_capability_list_omits_it": true
+    },
+    "same_typed_projection_bronze_sink_and_silver_engine": true,
+    "new_native_capabilities_marked_verified": false,
+    "native_sql_copy_authentication_and_gateway_execution_verified": false,
+    "control_procedures_and_copy_helper_require_coordinated_deployment": true
+  },
+  "remaining_limits": [
+    "Structured JSON-in-Markdown contracts are supported; arbitrary prose is not executable or semantically certified.",
+    "New-case generation is limited to declared managed SQL, generic DQ and supported dimensional and simple aggregate patterns.",
+    "Semantic declarations are generated; semantic model deployment is not implemented by this compiler.",
+    "Native SQL, Copy, DAG, MLV, layout, migration, recovery and consumer acceptance remain separately scoped.",
+    "Opt-in Spark/Delta/platform skips do not constitute native acceptance.",
+    "Parity tests require the pinned historical Git revision to be available.",
+    "Baseline correctness and business meaning still require human review.",
+    "External imports using the former case-named deployer package must migrate to fabric_medallion_deployer; no duplicate compatibility engine is retained.",
+    "SQL Server currently supports managed Basic connections only; other authentication modes require implemented and verified capability contracts."
+  ],
+  "actions_not_performed": [
+    "Cloud authentication or resource writes",
+    "Metadata activation or business publication",
+    "Source reseeding or historical data rewrite",
+    "Permission changes or paid resource creation",
+    "Deletion of deployed items",
+    "Commit or push for this restructuring pass"
+  ]
+}

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fabric-medallion-deployer"
+version = "0.1.0"
+description = "Compile and deploy metadata-driven Fabric medallion use cases"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = []
+
+[project.optional-dependencies]
+spark-tests = ["pyspark==3.5.7", "delta-spark==3.3.2"]
+
+[dependency-groups]
+dev = ["ipykernel", "ipywidgets", "nbformat", "pytest", "ruff", "tqdm"]
+
+[project.scripts]
+fabric-medallion-deploy = "fabric_medallion_deployer.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fabric_medallion_deployer"]

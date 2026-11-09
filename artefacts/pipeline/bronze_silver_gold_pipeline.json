@@ -1,0 +1,140 @@
+{
+  "properties": {
+    "description": "One metadata-driven entry point. Deployment and activation remain separately gated.",
+    "parameters": {
+      "p_metadata_version": {"type": "String", "defaultValue": ""},
+      "p_selected_objects_json": {"type": "String", "defaultValue": ""},
+      "p_resume_run_id": {"type": "String", "defaultValue": ""}
+    },
+    "activities": [
+      {
+        "name": "prepare_pinned_run",
+        "type": "Script",
+        "dependsOn": [],
+        "policy": {"timeout": "0.00:15:00", "retry": 0, "secureInput": true, "secureOutput": true},
+        "connectionSettings": {
+          "name": "conn_orchestrator_sql",
+          "properties": {
+            "annotations": [], "type": "FabricSqlDatabase",
+            "typeProperties": {"workspaceId": "__WORKSPACE_ID__", "artifactId": "__CONTROL_DATABASE_ID__"},
+            "externalReferences": {"connection": "__CONTROL_CONNECTION_ID__"}
+          }
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "Query",
+              "text": "EXEC ctl.usp_prepare_pipeline_run @run_id,@version_id,@observed_utc,@selected_objects_json,@resume_run_id;",
+              "parameters": [
+                {"name": "run_id", "type": "String", "direction": "Input", "value": {"value": "@pipeline().RunId", "type": "Expression"}},
+                {"name": "version_id", "type": "String", "direction": "Input", "value": {"value": "@pipeline().parameters.p_metadata_version", "type": "Expression"}},
+                {"name": "observed_utc", "type": "String", "direction": "Input", "value": {"value": "@formatDateTime(utcNow(),'yyyy-MM-ddTHH:mm:ss.ffffffZ')", "type": "Expression"}},
+                {"name": "selected_objects_json", "type": "String", "direction": "Input", "value": {"value": "@pipeline().parameters.p_selected_objects_json", "type": "Expression"}},
+                {"name": "resume_run_id", "type": "String", "direction": "Input", "value": {"value": "@pipeline().parameters.p_resume_run_id", "type": "Expression"}}
+              ]
+            }
+          ],
+          "scriptBlockExecutionTimeout": "00:10:00"
+        }
+      },
+      {
+        "name": "export_pinned_snapshot",
+        "type": "Copy",
+        "dependsOn": [{"activity": "prepare_pinned_run", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.00:15:00", "retry": 0, "secureInput": true, "secureOutput": true},
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "sqlReaderStoredProcedureName": "ctl.usp_export_run",
+            "storedProcedureParameters": {
+              "run_id": {"type": "String", "value": {"value": "@activity('prepare_pinned_run').output.resultSets[0].rows[0].run_id", "type": "Expression"}}
+            },
+            "queryTimeout": "00:10:00", "partitionOption": "None",
+            "datasetSettings": {
+              "annotations": [], "type": "FabricSqlDatabaseTable", "schema": [], "typeProperties": {},
+              "connectionSettings": {
+                "name": "conn_orchestrator_sql",
+                "properties": {
+                  "annotations": [], "type": "FabricSqlDatabase",
+                  "typeProperties": {"workspaceId": "__WORKSPACE_ID__", "artifactId": "__CONTROL_DATABASE_ID__"},
+                  "externalReferences": {"connection": "__CONTROL_CONNECTION_ID__"}
+                }
+              }
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "storeSettings": {"type": "LakehouseWriteSettings"},
+            "formatSettings": {"type": "DelimitedTextWriteSettings", "quoteAllText": true, "fileExtension": ".csv"},
+            "datasetSettings": {
+              "annotations": [], "type": "DelimitedText", "schema": [],
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": {"value": "@concat('orchestration/',activity('prepare_pinned_run').output.resultSets[0].rows[0].run_id)", "type": "Expression"},
+                  "fileName": {"value": "@concat('snapshot_',pipeline().RunId,'.csv')", "type": "Expression"}
+                },
+                "columnDelimiter": ",", "escapeChar": "\\", "firstRowAsHeader": true, "quoteChar": "\""
+              },
+              "linkedService": {
+                "name": "metadata_bronze_lakehouse",
+                "properties": {
+                  "annotations": [], "type": "Lakehouse",
+                  "typeProperties": {"workspaceId": "__WORKSPACE_ID__", "artifactId": "__BRONZE_LAKEHOUSE_ID__", "rootFolder": "Files"}
+                }
+              }
+            }
+          },
+          "enableStaging": false, "validateDataConsistency": true
+        }
+      },
+      {
+        "name": "prepare_dispatch",
+        "type": "TridentNotebook",
+        "dependsOn": [{"activity": "export_pinned_snapshot", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.01:00:00", "retry": 0, "secureInput": true, "secureOutput": true},
+        "typeProperties": {"notebookId": "__PREPARE_NOTEBOOK_ID__", "workspaceId": "__WORKSPACE_ID__", "parameters": {}}
+      },
+      {
+        "name": "dispatch_bronze_pages",
+        "type": "ForEach",
+        "dependsOn": [{"activity": "prepare_dispatch", "dependencyConditions": ["Succeeded"]}],
+        "typeProperties": {
+          "items": {"value": "@json(activity('prepare_dispatch').output.result.exitValue).pages", "type": "Expression"},
+          "isSequential": true,
+          "activities": [
+            {
+              "name": "invoke_copy_page",
+              "type": "ExecutePipeline",
+              "dependsOn": [],
+              "policy": {"timeout": "0.12:00:00", "retry": 0, "secureInput": true, "secureOutput": true},
+              "typeProperties": {
+                "pipeline": {"referenceName": "__COPY_PIPELINE_ID__", "type": "PipelineReference"},
+                "waitOnCompletion": true,
+                "parameters": {
+                  "p_run_id": {"value": "@activity('prepare_pinned_run').output.resultSets[0].rows[0].run_id", "type": "Expression"},
+                  "p_after_ordinal": {"value": "@item().after_ordinal", "type": "Expression"},
+                  "p_page_size": {"value": "@item().page_size", "type": "Expression"}
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "orchestrate_silver",
+        "type": "TridentNotebook",
+        "dependsOn": [{"activity": "dispatch_bronze_pages", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.12:00:00", "retry": 0, "secureInput": true, "secureOutput": true},
+        "typeProperties": {"notebookId": "__SILVER_NOTEBOOK_ID__", "workspaceId": "__WORKSPACE_ID__", "parameters": {}}
+      },
+      {
+        "name": "orchestrate_gold",
+        "type": "TridentNotebook",
+        "dependsOn": [{"activity": "orchestrate_silver", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.12:00:00", "retry": 0, "secureInput": true, "secureOutput": true},
+        "typeProperties": {"notebookId": "__GOLD_NOTEBOOK_ID__", "workspaceId": "__WORKSPACE_ID__", "parameters": {}}
+      }
+    ]
+  }
+}
