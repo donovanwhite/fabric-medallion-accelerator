@@ -18,11 +18,13 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from fabric_medallion_deployer.gold import FACTS, mlv_definitions
+from fabric_medallion_deployer.gold import mlv_definitions
 from fabric_medallion_deployer.metadata import metadata_digest
 from fabric_medallion_deployer.orchestrator import bootstrap_configuration
+from fabric_medallion_deployer.use_cases import load_case_extension, load_use_case
 
 ROOT = Path(__file__).resolve().parents[2]
+FACTS = load_case_extension(load_use_case(ROOT, "treasury"), "gold_profile").FACTS
 SPEC = importlib.util.spec_from_file_location(
     "treasury_mlv_tests", ROOT / "artefacts/orchestrator/mlv.py"
 )
@@ -603,7 +605,8 @@ class DefinitionTests(unittest.TestCase):
                 "target_lakehouse": "gold",
                 "schema": "gld",
                 "facts": FACTS,
-            }
+            },
+            use_case="treasury",
         )
         self.assertEqual(len(definitions), 11)
         for name, sql in definitions.items():
@@ -695,7 +698,7 @@ class MetadataConversionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bootstrap = bootstrap_configuration(
-            ROOT, "mlv-conversion-fixture"
+            ROOT, "mlv-conversion-fixture", use_case="treasury"
         ).to_document()
 
     def document(self):

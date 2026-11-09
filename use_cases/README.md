@@ -21,6 +21,12 @@ Register cases in [catalog.json](catalog.json). Each directory needs a
 document paths. Shared code must discover the selected profile, never
 guess a customer from source names or the first directory found.
 
+All accelerator operations must explicitly identify their intended use case.
+No customer or demonstration use case is selected by default.
+The catalog retains `default_use_case: null`; pass `--use-case <id>` to
+operational commands. Registered case IDs remain selectable even when their
+private local assets are not included in a fresh checkout.
+
 ## Authoring and outputs
 
 Put plans, requirements and specifications under their matching case

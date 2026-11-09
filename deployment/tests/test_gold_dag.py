@@ -18,7 +18,9 @@ from test_gold_runtime import ROOT, gold, silver
 
 def executable_gold_manifest():
     """A local test snapshot, not evidence of activation or Fabric approval."""
-    configuration = bootstrap_configuration(ROOT, "local-gold-version").to_document()
+    configuration = bootstrap_configuration(
+        ROOT, "local-gold-version", use_case="treasury"
+    ).to_document()
     selected = [
         obj
         for obj in configuration["objects"]

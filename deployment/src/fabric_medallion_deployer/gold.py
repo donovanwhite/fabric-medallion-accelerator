@@ -107,7 +107,9 @@ def mlv_definitions(
 ) -> dict[str, str]:
     """Assemble SQL generically; candidate business mappings belong to the case."""
     root = root or Path(__file__).resolve().parents[3]
-    profile = load_use_case(root, use_case or config.get("use_case_id"))
+    profile = load_use_case(
+        root, config.get("use_case_id") if use_case is None else use_case
+    )
     if profile.adapter == "compiled":
         return dict(config.get("mlvs", {}))
     target = f"{config['target_lakehouse']}.{config['schema']}"

@@ -31,7 +31,7 @@ def decode_part(definition: dict, path: str) -> str:
 class DefinitionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.sources = load_sources(ROOT)
+        cls.sources = load_sources(ROOT, use_case="treasury")
 
     def test_three_sql_projects_cover_all_tables(self) -> None:
         for source in self.sources:
@@ -92,6 +92,7 @@ class DefinitionTests(unittest.TestCase):
                 bronze_lakehouse_id="treasury-lakehouse",
                 sql_connection_id="source-connection",
                 notebook_ids=ids,
+                use_case="treasury",
             )
             pipeline = json.loads(decode_part(definition, "pipeline-content.json"))[
                 "properties"

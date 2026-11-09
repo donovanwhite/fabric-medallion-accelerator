@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class ConfigurationBindingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.original = bootstrap_configuration(ROOT)
+        cls.original = bootstrap_configuration(ROOT, use_case="treasury")
         cls.bindings = {
             "workspace_id": str(uuid.UUID(int=101)),
             "source_database_ids": {

@@ -20,6 +20,8 @@ from unittest.mock import patch
 
 from fabric_medallion_deployer.contracts import load_sources
 from fabric_medallion_deployer.gold import gold_config
+from fabric_medallion_deployer.use_cases import load_case_extension, load_use_case
+from test_runtime_controls import case_rule_handlers
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -40,7 +42,9 @@ silver = load_runtime(
 class GoldRequestTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.config = gold_config(ROOT, load_sources(ROOT))
+        cls.config = gold_config(
+            ROOT, load_sources(ROOT, use_case="treasury"), use_case="treasury"
+        )
         cls.runs = {
             s["source_code"]: {
                 "pipeline_run_id": "run",
@@ -114,8 +118,12 @@ class GoldSparkTests(unittest.TestCase):
         )
         cls.spark = configure_spark_with_delta_pip(builder).getOrCreate()
         cls.spark.sparkContext.setLogLevel("ERROR")
-        cls.sources = load_sources(ROOT)
-        cls.config = gold_config(ROOT, cls.sources)
+        cls.sources = load_sources(ROOT, use_case="treasury")
+        cls.config = gold_config(ROOT, cls.sources, use_case="treasury")
+        gold._CASE_GOLD = load_case_extension(
+            load_use_case(ROOT, "treasury"), "gold_rules"
+        )
+        silver._MEDALLION_RULE_HANDLERS = case_rule_handlers("treasury")
 
     @classmethod
     def tearDownClass(cls) -> None:

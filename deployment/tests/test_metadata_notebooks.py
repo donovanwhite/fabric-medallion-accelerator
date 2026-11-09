@@ -37,7 +37,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             ),
             "spark": Mock(),
         }
-        document = metadata_notebook_document(ROOT, "prepare")
+        document = metadata_notebook_document(ROOT, "prepare", use_case="treasury")
         wrong = SimpleNamespace(
             to_document=lambda: {
                 "configuration": {
@@ -88,7 +88,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
                 ),
             )
             namespace = {"notebookutils": utilities, "spark": Mock()}
-            document = metadata_notebook_document(ROOT, step)
+            document = metadata_notebook_document(ROOT, step, use_case="treasury")
             with (
                 self.subTest(step=step),
                 self.assertRaisesRegex(RuntimeError, "another use case"),
@@ -136,7 +136,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             ),
             notebook=SimpleNamespace(exit=exit_value),
         )
-        document = metadata_notebook_document(ROOT, "prepare")
+        document = metadata_notebook_document(ROOT, "prepare", use_case="treasury")
         for supplied in (False, True):
             namespace = {"notebookutils": utilities}
             with (
@@ -164,7 +164,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
 
     def test_all_generic_notebooks_compile_with_no_active_source_contracts(self):
         for step, name in METADATA_NOTEBOOKS.items():
-            document = metadata_notebook_document(ROOT, step)
+            document = metadata_notebook_document(ROOT, step, use_case="treasury")
             nbformat.validate(nbformat.from_dict(document))
             namespace = {}
             for cell in document["cells"]:
@@ -179,7 +179,9 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             self.assertEqual(
                 namespace["WORKER_CODE_SHA256"],
                 metadata_worker_sha256(
-                    ROOT, layer="gold" if step in {"gold", "gold_worker"} else "silver"
+                    ROOT,
+                    layer="gold" if step in {"gold", "gold_worker"} else "silver",
+                    use_case="treasury",
                 ),
             )
             self.assertTrue(callable(namespace["INGESTION"].load_silver))
@@ -205,7 +207,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             notebook=SimpleNamespace(exit=exit_value),
         )
         namespace = {"notebookutils": utilities}
-        document = metadata_notebook_document(ROOT, "prepare")
+        document = metadata_notebook_document(ROOT, "prepare", use_case="treasury")
         with self.assertRaises(NotebookExit):
             for cell in document["cells"]:
                 if cell["cell_type"] != "code":
@@ -247,7 +249,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             notebook=notebook,
         )
         namespace = {"notebookutils": utilities, "spark": None}
-        document = metadata_notebook_document(ROOT, "silver")
+        document = metadata_notebook_document(ROOT, "silver", use_case="treasury")
         with self.assertRaises(NotebookExit):
             for cell in document["cells"]:
                 if cell["cell_type"] != "code":
@@ -288,7 +290,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             ),
         )
         namespace = {"notebookutils": utilities, "spark": None}
-        document = metadata_notebook_document(ROOT, "worker")
+        document = metadata_notebook_document(ROOT, "worker", use_case="treasury")
         with self.assertRaises(RuntimeError):
             for cell in document["cells"]:
                 if cell["cell_type"] != "code":
@@ -313,6 +315,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
             workspace_id=workspace,
             lakehouse_id=lakehouse,
             lakehouse_name="lh_brz_slv_treasury",
+            use_case="treasury",
         )
         document = json.loads(base64.b64decode(definition["parts"][0]["payload"]))
         binding = document["metadata"]["dependencies"]["lakehouse"]
@@ -325,12 +328,13 @@ class MetadataNotebookTests(manifests.ManifestFixture):
                 workspace_id=workspace,
                 lakehouse_id="not-a-guid",
                 lakehouse_name="lh_brz_slv_treasury",
+                use_case="treasury",
             )
 
     def test_generic_publication_rejects_stale_generated_notebook(self):
         original = Path.read_text
         target = (
-            load_use_case(ROOT).generated
+            load_use_case(ROOT, use_case="treasury").generated
             / "notebooks"
             / f"{METADATA_NOTEBOOKS['worker']}.ipynb"
         )
@@ -348,6 +352,7 @@ class MetadataNotebookTests(manifests.ManifestFixture):
                 workspace_id=str(uuid.UUID(int=31)),
                 lakehouse_id=str(uuid.UUID(int=32)),
                 lakehouse_name="lh_brz_slv_treasury",
+                use_case="treasury",
             )
 
 

@@ -12,6 +12,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from test_runtime_controls import case_rule_handlers
+
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location(
     "treasury_ingestion", ROOT / "artefacts" / "medallion" / "ingestion.py"
@@ -37,6 +39,7 @@ class SparkRuntimeTests(unittest.TestCase):
         cls.spark.sparkContext.setLogLevel("ERROR")
         cls.runtime = importlib.util.module_from_spec(SPEC)
         SPEC.loader.exec_module(cls.runtime)
+        cls.runtime._MEDALLION_RULE_HANDLERS = case_rule_handlers("treasury")
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -455,7 +458,7 @@ class SparkRuntimeTests(unittest.TestCase):
         from fabric_medallion_deployer.contracts import load_sources
         from pyspark.sql import types as T
 
-        for source in load_sources(ROOT):
+        for source in load_sources(ROOT, use_case="treasury"):
             for table in source.tables:
                 with self.subTest(source=source.code, table=table["name"]):
                     with source.seed_file(table["name"]).open(
@@ -561,7 +564,8 @@ class SparkRuntimeTests(unittest.TestCase):
         from pyspark.sql import types as T
 
         from use_cases.treasury.fixtures.generate import csd_rows
-        source = load_sources(ROOT)[1]
+
+        source = load_sources(ROOT, use_case="treasury")[1]
         data = {}
         for table in source.tables:
             rows = csd_rows(table, 4, date(2026, 11, 2), 42)
@@ -593,7 +597,7 @@ class SparkRuntimeTests(unittest.TestCase):
         from use_cases.treasury.fixtures.generate import bas_rows, csd_rows, persal_rows
 
         builders = {"bas": bas_rows, "csd": csd_rows, "persal": persal_rows}
-        for source in load_sources(ROOT):
+        for source in load_sources(ROOT, use_case="treasury"):
             data = {}
             try:
                 for table in source.tables:
@@ -625,7 +629,7 @@ class SparkRuntimeTests(unittest.TestCase):
         from fabric_medallion_deployer.contracts import load_sources
         from pyspark.sql import functions as F
 
-        ledger = load_sources(ROOT)[0].tables[0]
+        ledger = load_sources(ROOT, use_case="treasury")[0].tables[0]
         names = [
             "demo_record_id",
             "debit_amount",
@@ -690,7 +694,7 @@ class SparkRuntimeTests(unittest.TestCase):
     def test_retention_is_source_scoped_and_requires_current_validation(self) -> None:
         from fabric_medallion_deployer.contracts import load_sources
 
-        config = load_sources(ROOT)[0].runtime_config()
+        config = load_sources(ROOT, use_case="treasury")[0].runtime_config()
         config["tables"] = [config["tables"][0]]
         context = self.runtime.processing_context(config, "2026-11-03", "cleanup-test")
         table = config["tables"][0]["name"]

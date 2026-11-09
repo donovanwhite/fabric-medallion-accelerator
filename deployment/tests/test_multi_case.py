@@ -36,12 +36,81 @@ from fabric_medallion_deployer.orchestrator import (
     metadata_notebook_document,
     metadata_worker_sha256,
 )
-from fabric_medallion_deployer.use_cases import load_use_case
+from fabric_medallion_deployer.use_cases import load_use_case, selected_use_case_id
 from metadata_fixtures import metadata_document
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_RULES = "def source_business_checks(data, source):\n    return []\ndef row_rules(table):\n    return []\n"
 GOLD_RULES = "# Explicit generic-only Gold adapter: all DQ is pinned metadata.\n"
+
+
+class UseCaseSelectionTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        cases = self.root / "use_cases"
+        cases.mkdir()
+        self.catalog = cases / "catalog.json"
+        self.catalog.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "default_use_case": None,
+                    "use_cases": ["treasury", "inventory_example"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        descriptor = json.loads(
+            (ROOT / "use_cases/inventory_example/use_case.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        for case in ("treasury", "inventory_example"):
+            directory = cases / case
+            directory.mkdir()
+            (directory / "use_case.json").write_text(
+                json.dumps(descriptor | {"id": case}), encoding="utf-8"
+            )
+
+    def test_missing_selection_fails_without_reading_a_case(self):
+        for selection in (None, "", " "):
+            with (
+                self.subTest(selection=selection),
+                self.assertRaisesRegex(ValueError, "explicit.*--use-case"),
+            ):
+                load_use_case(self.root, selection)
+
+    def test_every_registered_case_requires_and_accepts_explicit_selection(self):
+        for case in ("inventory_example", "treasury"):
+            with self.subTest(case=case):
+                self.assertEqual(selected_use_case_id(self.root, case), case)
+                self.assertEqual(load_use_case(self.root, case).case_id, case)
+        self.assertEqual(
+            load_use_case(ROOT, "inventory_example").case_id, "inventory_example"
+        )
+
+    def test_unknown_selection_never_falls_back(self):
+        for selection in ("unknown", "../treasury", "INVENTORY_EXAMPLE"):
+            with (
+                self.subTest(selection=selection),
+                self.assertRaisesRegex(ValueError, "Unknown use case"),
+            ):
+                load_use_case(self.root, selection)
+
+    def test_nonnull_catalog_defaults_are_rejected_not_used(self):
+        catalog = json.loads(self.catalog.read_text(encoding="utf-8"))
+        for default in ("treasury", "inventory_example"):
+            self.catalog.write_text(
+                json.dumps(catalog | {"default_use_case": default}), encoding="utf-8"
+            )
+            for selection in (None, "inventory_example"):
+                with (
+                    self.subTest(default=default, selection=selection),
+                    self.assertRaises(ValueError),
+                ):
+                    load_use_case(self.root, selection)
 
 
 class MultiCaseTests(unittest.TestCase):
@@ -68,7 +137,7 @@ class MultiCaseTests(unittest.TestCase):
             json.dumps(
                 {
                     "schema_version": 1,
-                    "default_use_case": "alpha",
+                    "default_use_case": None,
                     "use_cases": ["alpha", "beta"],
                 }
             ),
@@ -209,7 +278,8 @@ class MultiCaseTests(unittest.TestCase):
         )
 
     def test_selection_inventory_and_generated_paths_are_case_isolated(self):
-        self.assertEqual(load_use_case(self.root).case_id, "alpha")
+        with self.assertRaisesRegex(ValueError, "explicit.*--use-case"):
+            load_use_case(self.root)
         alpha, beta = [load_use_case(self.root, name) for name in ("alpha", "beta")]
         self.assertFalse(
             set(reusable_inventory(profile=alpha))
@@ -223,11 +293,11 @@ class MultiCaseTests(unittest.TestCase):
             bootstrap_configuration(self.root, use_case="beta")
 
     def test_drafts_refresh_bundle_hashes_without_reusing_approvals(self):
-        config = bootstrap_configuration(self.root)
+        config = bootstrap_configuration(self.root, use_case="alpha")
         other = bootstrap_configuration(self.root, use_case="beta")
         self.assertEqual(
             config.definition_sha256,
-            bootstrap_configuration(self.root).definition_sha256,
+            bootstrap_configuration(self.root, use_case="alpha").definition_sha256,
         )
         self.assertNotEqual(config.version_id, other.version_id)
         self.assertTrue(config.version_id.startswith("alpha-compiled-"))
@@ -237,38 +307,45 @@ class MultiCaseTests(unittest.TestCase):
         for worker in document["workers"]:
             layer = "gold" if worker["id"] == "gold-worker" else "silver"
             self.assertEqual(
-                worker["code_sha256"], metadata_worker_sha256(self.root, layer=layer)
+                worker["code_sha256"],
+                metadata_worker_sha256(self.root, layer=layer, use_case="alpha"),
             )
             self.assertIn("alpha", worker["notebook_name"])
         before = {
-            layer: metadata_worker_sha256(self.root, layer=layer)
+            layer: metadata_worker_sha256(self.root, layer=layer, use_case="alpha")
             for layer in ("silver", "gold")
         }
-        load_use_case(self.root).input_path("gold_rules").write_text(
+        load_use_case(self.root, "alpha").input_path("gold_rules").write_text(
             GOLD_RULES + "# new reviewed code\n", encoding="utf-8"
         )
-        self.assertEqual(before["silver"], metadata_worker_sha256(self.root))
-        self.assertNotEqual(
-            before["gold"], metadata_worker_sha256(self.root, layer="gold")
+        self.assertEqual(
+            before["silver"], metadata_worker_sha256(self.root, use_case="alpha")
         )
         self.assertNotEqual(
-            config.version_id, bootstrap_configuration(self.root).version_id
+            before["gold"],
+            metadata_worker_sha256(self.root, layer="gold", use_case="alpha"),
+        )
+        self.assertNotEqual(
+            config.version_id,
+            bootstrap_configuration(self.root, use_case="alpha").version_id,
         )
 
     def test_staged_rule_code_hashes_match_disk_and_reject_partial_overrides(self):
-        profile = load_use_case(self.root)
+        profile = load_use_case(self.root, "alpha")
         sources = {
             name: profile.input_path(name).read_text(encoding="utf-8")
             for name in ("source_rules", "gold_rules")
         }
         for layer in ("silver", "gold"):
             self.assertEqual(
-                metadata_worker_sha256(self.root, layer=layer),
-                metadata_worker_sha256(self.root, layer=layer, case_sources=sources),
+                metadata_worker_sha256(self.root, layer=layer, use_case="alpha"),
+                metadata_worker_sha256(
+                    self.root, layer=layer, use_case="alpha", case_sources=sources
+                ),
             )
         with self.assertRaises(ValueError):
             metadata_worker_sha256(
-                self.root, case_sources={"source_rules": SOURCE_RULES}
+                self.root, use_case="alpha", case_sources={"source_rules": SOURCE_RULES}
             )
 
     def test_compiled_gold_configuration_never_loads_treasury_profile(self):
@@ -278,11 +355,14 @@ class MultiCaseTests(unittest.TestCase):
         self.assertEqual(config["calendar"]["fiscal_year_start_month"], 1)
         self.assertEqual(dimension_specs(self.root, "beta"), [])
         self.assertEqual(mlv_definitions(config, root=self.root), {})
+        for selection in ("", " ", "unknown"):
+            with self.subTest(selection=selection), self.assertRaises(ValueError):
+                mlv_definitions(config, root=self.root, use_case=selection)
 
     def test_compiled_configuration_rejects_cross_case_targets_and_missing_calendars(
         self,
     ):
-        path = load_use_case(self.root).input_path("compiled_metadata")
+        path = load_use_case(self.root, "alpha").input_path("compiled_metadata")
         original = json.loads(path.read_text(encoding="utf-8"))
         for field in ("lakehouse", "calendar", "identity"):
             document = json.loads(json.dumps(original))
@@ -294,7 +374,7 @@ class MultiCaseTests(unittest.TestCase):
                 document["extensions"]["use_case_id"] = "beta"
             path.write_text(json.dumps(document), encoding="utf-8")
             with self.subTest(field=field), self.assertRaises(ValueError):
-                bootstrap_configuration(self.root)
+                bootstrap_configuration(self.root, use_case="alpha")
 
     def test_clean_bundles_do_not_inherit_treasury_rules_or_active_source_arrays(self):
         for case in ("alpha", "beta"):
@@ -356,6 +436,7 @@ class MultiCaseTests(unittest.TestCase):
     def test_default_bindings_and_stale_outputs_fail_closed(self):
         self.generate("alpha")
         kwargs = {
+            "use_case": "alpha",
             "workspace_id": "11111111-1111-4111-8111-111111111111",
             "lakehouse_id": "22222222-2222-4222-8222-222222222222",
             "lakehouse_name": "lh_brz_slv_alpha",
@@ -370,7 +451,7 @@ class MultiCaseTests(unittest.TestCase):
             metadata_notebook_definition(
                 self.root, "worker", **(kwargs | {"lakehouse_name": "lh_brz_slv_beta"})
             )
-        profile = load_use_case(self.root)
+        profile = load_use_case(self.root, "alpha")
         path = (
             profile.generated
             / "notebooks"

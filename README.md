@@ -48,6 +48,9 @@ deployment\                 reusable compiler, build, validation and publication
 
 ## Start here
 
+All accelerator operations must explicitly identify their intended use case.
+No customer or demonstration use case is selected by default.
+
 Read [baseline governance](baselines/requirements/governance.md),
 [the architecture](baselines/specifications/architecture.md) and
 [the authoring workflow](baselines/specifications/specification_workflow.md).
@@ -72,8 +75,8 @@ it or clone core Silver/Gold/DAG engines for a customer.
 The entire `use_cases/treasury/` directory is private and Git-ignored,
 including its documents, PDFs, contracts, code, fixtures and generated assets.
 Keep it locally; do not force-add it. Fresh checkouts do not include this case.
-Commands that select Treasury, including existing Treasury defaults, require
-the private local folder. Use `--use-case inventory_example` for the shared
+Commands that explicitly select Treasury require the private local folder.
+Use `--use-case inventory_example` for the shared
 example. Ignore rules do not remove previously committed files from Git history.
 
 ## Guardrails and evidence

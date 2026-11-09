@@ -1,5 +1,5 @@
 {
   "schema_version": 1,
-  "default_use_case": "treasury",
+  "default_use_case": null,
   "use_cases": ["treasury", "inventory_example"]
 }

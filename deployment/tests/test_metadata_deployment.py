@@ -37,7 +37,7 @@ class PublicationClient(InventoryClient):
         super().__init__(
             [
                 FabricItem(validation_id(s.database), s.database, "SQLDatabase")
-                for s in load_sources(ROOT)
+                for s in load_sources(ROOT, use_case="treasury")
             ]
         )
         self.checked: list[str] = []
@@ -97,6 +97,7 @@ class MetadataPublicationTests(unittest.TestCase):
 
     def deploy(self, **overrides) -> dict[str, FabricItem]:
         options = {
+            "use_case": "treasury",
             "bootstrap_orchestrator": True,
             "metadata_assets": True,
             "state_file": self.path,
@@ -235,7 +236,9 @@ class MetadataPublicationTests(unittest.TestCase):
         )
         self.deploy(overwrite=True)
         self.assertIn(validation_id("existing-prepare"), self.client.definitions)
-        source_ids = {validation_id(s.database) for s in load_sources(ROOT)}
+        source_ids = {
+            validation_id(s.database) for s in load_sources(ROOT, use_case="treasury")
+        }
         self.assertFalse(source_ids & self.client.definitions.keys())
         self.assertTrue(
             all(i.folder_id is None for i in self.client.items if i.id in source_ids)

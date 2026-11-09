@@ -18,9 +18,15 @@ ROOT = Path(__file__).resolve().parents[2]
 class ReusableRetirementTests(unittest.TestCase):
     def test_six_generated_notebooks_have_no_embedded_active_contract(self):
         paths = [
-            load_use_case(ROOT).generated / "notebooks" / f"{name}.ipynb"
+            load_use_case(ROOT, use_case="treasury").generated
+            / "notebooks"
+            / f"{name}.ipynb"
             for name in METADATA_NOTEBOOKS.values()
-        ] + [load_use_case(ROOT).generated / "notebooks" / f"{MLV_NOTEBOOK}.ipynb"]
+        ] + [
+            load_use_case(ROOT, use_case="treasury").generated
+            / "notebooks"
+            / f"{MLV_NOTEBOOK}.ipynb"
+        ]
         self.assertEqual(len(paths), 6)
         for path in paths:
             with self.subTest(path=path):
@@ -34,7 +40,7 @@ class ReusableRetirementTests(unittest.TestCase):
                         compile(code, str(path), "exec")
 
     def test_superseded_files_are_absent_but_shared_logic_is_retained(self):
-        sources = load_sources(ROOT)
+        sources = load_sources(ROOT, use_case="treasury")
         for source in sources:
             for name in source.notebooks.values():
                 self.assertFalse(
@@ -55,8 +61,8 @@ class ReusableRetirementTests(unittest.TestCase):
             self.assertTrue((ROOT / relative).is_file(), relative)
 
     def test_normal_manifest_matches_reusable_inventory_not_source_count(self):
-        sources = load_sources(ROOT)
-        profile = load_use_case(ROOT)
+        sources = load_sources(ROOT, use_case="treasury")
+        profile = load_use_case(ROOT, use_case="treasury")
         manifest = json.loads(
             (profile.generated / "deployment" / "manifest.json").read_text()
         )

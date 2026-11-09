@@ -26,8 +26,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class LocalOrchestrationAcceptanceTests(unittest.TestCase):
     def test_all_44_sources_feed_one_pinned_gold_plan_with_preserved_identity(self):
-        baseline = bootstrap_configuration(ROOT)
-        sources = load_sources(ROOT)
+        baseline = bootstrap_configuration(ROOT, use_case="treasury")
+        sources = load_sources(ROOT, use_case="treasury")
         bound = bind_configuration(
             baseline,
             workspace_id=validation_id("local-workspace"),
@@ -59,7 +59,7 @@ class LocalOrchestrationAcceptanceTests(unittest.TestCase):
         config = gold.gold_config_from_manifest(
             snapshot,
             snapshot_sha256=plan.snapshot_sha256,
-            code_sha256=metadata_worker_sha256(ROOT, layer="gold"),
+            code_sha256=metadata_worker_sha256(ROOT, layer="gold", use_case="treasury"),
         )
         self.assertEqual(
             {

@@ -10,7 +10,8 @@ description: Baseline-governed, specification-driven development and token-effic
 This repository implements a reusable, metadata-driven Microsoft Fabric
 medallion architecture accelerator.
 
-The accelerator supports independently configured use cases through:
+The accelerator's intended scope for independently configured use cases includes
+the following capabilities; verify the implemented subset before relying on them:
 
 - Baseline-governed architecture.
 - Specification-driven use-case development.
@@ -92,7 +93,8 @@ For case-specific work, inspect the selected case's:
 
 `use_cases/<id>/use_case.json`
 
-Do not assume Treasury is the default use case or reference architecture.
+All accelerator operations must explicitly identify their intended use case.
+No customer or demonstration use case is selected by default.
 
 ### Baseline change control
 
@@ -389,6 +391,10 @@ in source documents.
 
 ### Required workflow
 
+For case authoring or generation tasks, follow this workflow. Shared-code or
+documentation work loads case contracts only when an affected behavior requires
+them; never select a case merely to navigate shared code.
+
 1. Resolve the selected use case.
 2. Identify applicable baseline requirements.
 3. Review source and output contracts.
@@ -584,8 +590,8 @@ successful validation or previous historical evidence.
 Use the existing deployment virtual environment
 when notebook dependencies are required.
 
-The public `inventory_example` is the default
-shared validation example.
+The public `inventory_example` can be explicitly selected for shared
+validation examples; it is not an implicit default.
 
 ### Validate specifications
 

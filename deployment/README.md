@@ -7,10 +7,21 @@ ms.topic: how-to
 
 ## Case selection and output
 
-`use_cases/catalog.json` declares registered cases and a default. Explicit
-`--use-case` selects one descriptor; missing/unsupported cases fail instead
-of falling back to Treasury. Resource names and item namespaces come from
-that descriptor.
+All accelerator operations must explicitly identify their intended use case.
+No customer or demonstration use case is selected by default.
+
+`use_cases/catalog.json` declares registered cases with `default_use_case: null`.
+Every operational entrypoint requires explicit `--use-case <id>` selection;
+missing/unsupported selections fail before generation, binding, validation or
+cloud access. Python callers must also supply the case explicitly, or pass
+an already case-bound configuration to APIs that accept it. Resource names
+and item namespaces come from the selected descriptor.
+
+CLI case selection is distinct from runtime metadata-version selection.
+A blank `p_metadata_version` lets `ctl.usp_prepare_pipeline_run` pin the
+approved active version; generated preparation/worker code rejects a
+different case identity before dispatch. Supply the intended metadata version
+for an explicitly pinned run. This does not select a default CLI use case.
 
 Treasury uses reviewed snapshot/domain adapters. `inventory_example` uses
 compiled Markdown contracts and does not require Treasury source CSVs.
@@ -49,14 +60,19 @@ Hand-edited compiler products block regeneration; change inputs instead.
 
 ```powershell
 .\deployment\.venv\Scripts\python.exe deployment\deploy.py --use-case inventory_example --validate-local
-.\deployment\.venv\Scripts\python.exe deployment\deploy.py --use-case treasury --validate-local
-$env:PYTHONPATH = Join-Path (Get-Location) 'deployment\src'
-.\deployment\.venv\Scripts\python.exe -B -m unittest discover -s deployment\tests -p "test_*.py" -q
+$env:PYTHONPATH = "$(Join-Path (Get-Location) 'deployment\src');$(Join-Path (Get-Location) 'deployment\tests')"
+.\deployment\.venv\Scripts\python.exe -B -m unittest test_spec_compiler test_multi_case test_cli.EntrypointCaseSelectionTests -q
 ```
 
-These commands do not authenticate or publish. Snapshot adapter validation
-additionally checks the selected case's source/provenance assets.
+These public-only smoke checks do not authenticate, publish or require private
+case assets. Tests compile/generate only disposable fixtures or in-memory bundles.
 Compiled cases use their explicit source contracts, not invented seed data.
+
+Do not treat full test discovery as a fresh-checkout smoke command. Several
+indexed suites require authorized local case assets; Spark/Delta and native
+tiers are separately opt-in. Snapshot adapter validation also reads the
+explicitly selected case's source/provenance assets. Inspect test prerequisites
+and permissions before expanding beyond the public smoke set.
 
 ## Binding and lifecycle
 

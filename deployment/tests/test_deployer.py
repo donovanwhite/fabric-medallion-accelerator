@@ -93,7 +93,7 @@ class InventoryClient:
 class DeploymentTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.sources = load_sources(ROOT)
+        cls.sources = load_sources(ROOT, use_case="treasury")
 
     def deployer(
         self, client: InventoryClient, *, overwrite: bool = True, dry_run: bool = False
@@ -107,6 +107,7 @@ class DeploymentTests(unittest.TestCase):
                 overwrite=overwrite,
                 dry_run=dry_run,
                 state_file=Path(directory.name) / "publication.json",
+                use_case="treasury",
             ),
             client=cast(FabricClient, client),
         )
@@ -174,11 +175,13 @@ class DeploymentTests(unittest.TestCase):
 
     def test_offline_preflight_compiles_every_asset(self) -> None:
         with patch("fabric_medallion_deployer.deployer.validate_seed_data") as seed:
-            sources = validate_local(ROOT)
+            sources = validate_local(ROOT, use_case="treasury")
         self.assertEqual(len(sources), 3)
         from fabric_medallion_deployer.use_cases import load_use_case
 
-        seed.assert_called_once_with(ROOT, use_case=load_use_case(ROOT).case_id)
+        seed.assert_called_once_with(
+            ROOT, use_case=load_use_case(ROOT, use_case="treasury").case_id
+        )
 
     def test_expired_connection_blocks_all_mutation(self) -> None:
         client = self.publication_client()
@@ -270,6 +273,7 @@ class DeploymentTests(unittest.TestCase):
                 "ws_kzn_treasury",
                 bootstrap_orchestrator=True,
                 state_file=state,
+                use_case="treasury",
             )
             with (
                 patch.object(
@@ -295,6 +299,7 @@ class DeploymentTests(unittest.TestCase):
                     bootstrap_orchestrator=True,
                     state_file=state,
                     resume=True,
+                    use_case="treasury",
                 ),
                 client=cast(FabricClient, client),
             ).deploy()
@@ -309,6 +314,7 @@ class DeploymentTests(unittest.TestCase):
                 "ws_kzn_treasury",
                 bootstrap_orchestrator=True,
                 dry_run=True,
+                use_case="treasury",
             ),
             client=cast(FabricClient, client),
         ).deploy()

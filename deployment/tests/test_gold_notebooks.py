@@ -35,7 +35,7 @@ MODULE = ROOT / "artefacts" / "orchestrator" / "gold_orchestration.py"
 class GoldNotebookTests(unittest.TestCase):
     def test_generic_gold_assets_have_no_active_contract_and_compile_cleanly(self):
         for step in ("gold", "gold_worker"):
-            document = metadata_notebook_document(ROOT, step)
+            document = metadata_notebook_document(ROOT, step, use_case="treasury")
             nbformat.validate(nbformat.from_dict(document))
             namespace = {}
             for cell in document["cells"]:
@@ -50,22 +50,26 @@ class GoldNotebookTests(unittest.TestCase):
                     exec(compile(code, step, "exec"), namespace)  # noqa: S102
             self.assertEqual(
                 namespace["WORKER_CODE_SHA256"],
-                metadata_worker_sha256(ROOT, layer="gold"),
+                metadata_worker_sha256(ROOT, layer="gold", use_case="treasury"),
             )
             self.assertTrue(callable(namespace["GOLD"].build_gold_object))
             self.assertTrue(callable(namespace["GOLD_CONTROL"].run_gold_parent))
 
     def test_gold_packaged_hash_matches_bootstrap_and_covers_all_worker_code(self):
-        config = bootstrap_configuration(ROOT)
+        config = bootstrap_configuration(ROOT, use_case="treasury")
         worker = next(w for w in config.workers if w.id == "gold-worker")
-        self.assertEqual(worker.code_sha256, metadata_worker_sha256(ROOT, layer="gold"))
-        silver_hash = metadata_worker_sha256(ROOT)
+        self.assertEqual(
+            worker.code_sha256,
+            metadata_worker_sha256(ROOT, layer="gold", use_case="treasury"),
+        )
+        silver_hash = metadata_worker_sha256(ROOT, use_case="treasury")
         with patch(
             "fabric_medallion_deployer.orchestrator.metadata_runtime_sources",
             return_value={"gold": "changed implementation"},
         ):
             self.assertNotEqual(
-                worker.code_sha256, metadata_worker_sha256(ROOT, layer="gold")
+                worker.code_sha256,
+                metadata_worker_sha256(ROOT, layer="gold", use_case="treasury"),
             )
         self.assertNotEqual(worker.code_sha256, silver_hash)
 
@@ -74,6 +78,7 @@ class GoldNotebookTests(unittest.TestCase):
     ):
         workspace, target, source = (str(uuid.UUID(int=i)) for i in (101, 102, 103))
         arguments = {
+            "use_case": "treasury",
             "workspace_id": workspace,
             "lakehouse_id": target,
             "lakehouse_name": "lh_gld_treasury",
@@ -114,7 +119,7 @@ class GoldNotebookTests(unittest.TestCase):
                     ),
                 )
             }
-            document = metadata_notebook_document(ROOT, step)
+            document = metadata_notebook_document(ROOT, step, use_case="treasury")
             with self.assertRaisesRegex(ValueError, "source"):
                 for cell in document["cells"]:
                     if cell["cell_type"] == "code":
@@ -151,7 +156,7 @@ class GoldNotebookTests(unittest.TestCase):
                     "tasks": [],
                 }
             )
-            document = metadata_notebook_document(ROOT, step)
+            document = metadata_notebook_document(ROOT, step, use_case="treasury")
             with self.subTest(step=step), self.assertRaises(NotebookExit):
                 for cell in document["cells"]:
                     if cell["cell_type"] != "code":

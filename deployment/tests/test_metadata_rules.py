@@ -21,7 +21,7 @@ SPEC.loader.exec_module(rules)
 class MetadataRuleTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.config = bootstrap_configuration(ROOT)
+        cls.config = bootstrap_configuration(ROOT, use_case="treasury")
 
     def profile(self):
         obj = next(obj for obj in self.config.objects if obj.layer == "silver")

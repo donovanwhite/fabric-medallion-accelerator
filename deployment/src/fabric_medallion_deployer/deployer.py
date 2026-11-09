@@ -638,7 +638,12 @@ class AcceleratorDeployer:
             for name, item in existing.items()
         }
         _metadata_definitions(
-            self.root, self.sources, workspace_id, ids, connections["orchestrator"]
+            self.root,
+            self.sources,
+            workspace_id,
+            ids,
+            connections["orchestrator"],
+            profile.case_id,
         )
         if self.options.dry_run:
             LOGGER.info(

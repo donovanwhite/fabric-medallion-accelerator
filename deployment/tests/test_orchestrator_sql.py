@@ -32,13 +32,13 @@ ROOT = Path(__file__).resolve().parents[2]
 class OrchestratorDefinitionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.config = bootstrap_configuration(ROOT)
+        cls.config = bootstrap_configuration(ROOT, use_case="treasury")
 
     def test_seed_contains_all_44_source_contracts_without_claiming_live_support(
         self,
     ) -> None:
         self.assertEqual(len(self.config.feeds), 3)
-        sources = load_sources(ROOT)
+        sources = load_sources(ROOT, use_case="treasury")
         for source in sources:
             feed = next(f for f in self.config.feeds if f.source_code == source.code)
             self.assertEqual(feed.legacy_contract_hash, source.contract_hash)
@@ -61,15 +61,17 @@ class OrchestratorDefinitionTests(unittest.TestCase):
         )
         self.assertEqual(
             self.config.definition_sha256,
-            bootstrap_configuration(ROOT).definition_sha256,
+            bootstrap_configuration(ROOT, use_case="treasury").definition_sha256,
         )
         self.assertTrue(self.config.version_id.startswith("treasury-bootstrap-"))
-        changed = bootstrap_configuration(ROOT, version_id="explicit-new-version")
+        changed = bootstrap_configuration(
+            ROOT, version_id="explicit-new-version", use_case="treasury"
+        )
         self.assertEqual(changed.version_id, "explicit-new-version")
 
     def test_hash_order_is_seeded_independently_of_projection_ordinals(self) -> None:
         policies = self.config.to_document()["extensions"]["hash_policies"]
-        for source in load_sources(ROOT):
+        for source in load_sources(ROOT, use_case="treasury"):
             for table in source.tables:
                 policy = policies[f"{source.code}.silver.{table['name']}"]
                 self.assertEqual(policy["key_columns"], table["keys"])
@@ -89,11 +91,13 @@ class OrchestratorDefinitionTests(unittest.TestCase):
                 {
                     name: hashlib.sha256(source.encode("utf-8")).hexdigest()
                     for name, source in metadata_runtime_sources(
-                        ROOT, layer=layer
+                        ROOT, layer=layer, use_case="treasury"
                     ).items()
                 }
             )
-            self.assertEqual(expected, metadata_worker_sha256(ROOT, layer=layer))
+            self.assertEqual(
+                expected, metadata_worker_sha256(ROOT, layer=layer, use_case="treasury")
+            )
             self.assertEqual(
                 next(w.code_sha256 for w in self.config.workers if w.id == worker),
                 expected,

@@ -9,6 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from fabric_medallion_deployer.contracts import load_sources
+from fabric_medallion_deployer.use_cases import load_case_extension, load_use_case
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location(
@@ -18,10 +19,23 @@ runtime = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(runtime)
 
 
+def case_rule_handlers(use_case: str) -> dict:
+    spec = importlib.util.spec_from_file_location(
+        "runtime_control_rules", ROOT / "artefacts/medallion/rules.py"
+    )
+    rules = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rules)
+    rules._CASE_RULES = load_case_extension(
+        load_use_case(ROOT, use_case), "source_rules"
+    )
+    return rules._MEDALLION_RULE_HANDLERS
+
+
 class RuntimeControlTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.source = load_sources(ROOT)[2]
+        cls.source = load_sources(ROOT, use_case="treasury")[2]
+        runtime._MEDALLION_RULE_HANDLERS = case_rule_handlers("treasury")
 
     def test_processing_date_and_source_filename(self) -> None:
         config = self.source.runtime_config()

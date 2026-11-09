@@ -28,13 +28,13 @@ ROOT = Path(__file__).resolve().parents[2]
 class GoldContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.sources = load_sources(ROOT)
-        cls.config = gold_config(ROOT, cls.sources)
+        cls.sources = load_sources(ROOT, use_case="treasury")
+        cls.config = gold_config(ROOT, cls.sources, use_case="treasury")
 
     def test_legacy_compiler_is_only_a_bootstrap_alias(self) -> None:
         self.assertEqual(
-            bootstrap_gold_config(ROOT, self.sources),
-            gold_config(ROOT, self.sources),
+            bootstrap_gold_config(ROOT, self.sources, use_case="treasury"),
+            gold_config(ROOT, self.sources, use_case="treasury"),
         )
 
     def test_matches_frozen_gold_semantics(self) -> None:
@@ -135,7 +135,7 @@ class GoldContractTests(unittest.TestCase):
     def test_sql_mlvs_are_deterministic_source_backed_and_not_fake_budgets(
         self,
     ) -> None:
-        definitions = mlv_definitions(self.config)
+        definitions = mlv_definitions(self.config, use_case="treasury")
         self.assertIn("mlv_finance_monthly", definitions)
         self.assertIn("mlv_recorded_outstanding_payments", definitions)
         for name, sql in definitions.items():
@@ -157,7 +157,10 @@ class GoldContractTests(unittest.TestCase):
                 workspace_id="workspace-test",
                 gold_lakehouse_id="gold-test",
                 source_lakehouse_id="silver-test",
-                document=gold_notebook_document(ROOT, self.sources, step),
+                document=gold_notebook_document(
+                    ROOT, self.sources, step, use_case="treasury"
+                ),
+                use_case="treasury",
             )
             nb = json.loads(base64.b64decode(definition["parts"][0]["payload"]))
             self.assertEqual(
@@ -178,7 +181,9 @@ class GoldContractTests(unittest.TestCase):
     def test_in_memory_generation_does_not_bypass_stale_notebook_validation(
         self,
     ) -> None:
-        document = gold_notebook_document(ROOT, self.sources, "mlvs")
+        document = gold_notebook_document(
+            ROOT, self.sources, "mlvs", use_case="treasury"
+        )
         document["cells"][0]["source"] = ["unreviewed replacement"]
         with self.assertRaisesRegex(ValueError, "Stale generated Gold notebook"):
             gold_notebook_definition(
@@ -189,10 +194,11 @@ class GoldContractTests(unittest.TestCase):
                 gold_lakehouse_id="local-gold",
                 source_lakehouse_id="local-silver",
                 document=document,
+                use_case="treasury",
             )
 
     def test_gold_build_passes_quality_policy_to_the_embedded_ingestion_adapter(self):
-        document = metadata_notebook_document(ROOT, "gold_worker")
+        document = metadata_notebook_document(ROOT, "gold_worker", use_case="treasury")
         namespace = {}
         for cell in document["cells"]:
             if cell["cell_type"] == "code" and cell["id"] != "execute":

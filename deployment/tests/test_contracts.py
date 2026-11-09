@@ -38,13 +38,13 @@ class ContractTests(unittest.TestCase):
             )
             legacy = root / "specifications"
             legacy.mkdir()
-            self.assertEqual(source_specifications_root(root), legacy)
+            self.assertEqual(source_specifications_root(root, "sample"), legacy)
             relocated = root / "docs" / "specifications"
             relocated.mkdir(parents=True)
             with self.assertRaisesRegex(ValueError, "Ambiguous"):
-                source_specifications_root(root)
+                source_specifications_root(root, "sample")
             legacy.rmdir()
-            self.assertEqual(source_specifications_root(root), relocated)
+            self.assertEqual(source_specifications_root(root, "sample"), relocated)
 
     def test_seed_validation_uses_the_same_resolved_source_provenance(self):
         for location in (
@@ -95,14 +95,14 @@ class ContractTests(unittest.TestCase):
                     "    raise SystemExit(main())\n",
                     encoding="utf-8",
                 )
-                validate_seed_data(root)
+                validate_seed_data(root, "sample")
 
     def test_case_without_synthetic_generator_does_not_run_treasury(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             declare_case(root)
             with patch("fabric_medallion_deployer.contracts.subprocess.run") as run:
-                validate_seed_data(root)
+                validate_seed_data(root, "sample")
             run.assert_not_called()
 
     def test_declared_validator_need_not_use_docling_or_treasury_contracts(self) -> None:
@@ -118,7 +118,7 @@ class ContractTests(unittest.TestCase):
                 "    return 0\n",
                 encoding="utf-8",
             )
-            validate_seed_data(root)
+            validate_seed_data(root, "sample")
 
     def test_arbitrary_case_source_names_and_schema_mappings(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -166,7 +166,7 @@ class ContractTests(unittest.TestCase):
             registry_path = root / "use_cases/sample/contracts/source_registry.json"
             registry_path.parent.mkdir(parents=True, exist_ok=True)
             registry_path.write_text(json.dumps(registry), encoding="utf-8")
-            source, = load_sources(root)
+            (source,) = load_sources(root, "sample")
             self.assertEqual(source.code, "sensor")
             self.assertEqual(source.lakehouse, "lh_sample")
             self.assertEqual(source.source_schema, "incoming")
@@ -176,7 +176,7 @@ class ContractTests(unittest.TestCase):
             registry["sources"].append(registry["sources"][0])
             registry_path.write_text(json.dumps(registry), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unique source codes"):
-                load_sources(root)
+                load_sources(root, "sample")
 
     def test_matches_frozen_pre_metadata_contracts(self) -> None:
         baseline = json.loads(
@@ -185,7 +185,7 @@ class ContractTests(unittest.TestCase):
             ).read_text(encoding="utf-8")
         )
         for source, expected in zip(
-            load_sources(ROOT), baseline["sources"], strict=True
+            load_sources(ROOT, "treasury"), baseline["sources"], strict=True
         ):
             with self.subTest(source=source.code):
                 self.assertEqual(source.code, expected["source_code"])
@@ -223,7 +223,7 @@ class ContractTests(unittest.TestCase):
                     self.assertEqual(digest, frozen["contract_sha256"])
 
     def test_explicit_rebaseline_covers_every_unchanged_business_asset(self) -> None:
-        registry_path = source_registry_path(ROOT)
+        registry_path = source_registry_path(ROOT, "treasury")
         sidecar = json.loads(
             registry_path.with_name("provenance_rebaseline.json").read_text(
                 encoding="utf-8"
@@ -242,7 +242,7 @@ class ContractTests(unittest.TestCase):
             digest(registry_path), sidecar["fingerprints"]["source_registry_sha256"]["old"]
         )
         totals = {"tables": 0, "rows": 0, "columns": 0}
-        for source in load_sources(ROOT):
+        for source in load_sources(ROOT, "treasury"):
             expected = sidecar["sources"][source.code]
             schema = json.loads(source.schema_path.read_text(encoding="utf-8"))
             business = {
@@ -267,14 +267,14 @@ class ContractTests(unittest.TestCase):
                 totals[key] += expected[key]
             stale = {**source.manifest, "generator_sha256": "0" * 64}
             with self.assertRaisesRegex(ValueError, "generate.py changed"):
-                _validate_lineage(ROOT, schema, stale, source.schema_path)
+                _validate_lineage(ROOT, schema, stale, source.schema_path, "treasury")
         self.assertEqual(
             totals, {key: sidecar["verification"][key] for key in totals}
         )
         self.assertEqual(totals["tables"], sidecar["verification"]["csv_files"])
 
     def test_complete_source_inventory(self) -> None:
-        sources = load_sources(ROOT)
+        sources = load_sources(ROOT, "treasury")
         self.assertEqual([source.code for source in sources], ["bas", "csd", "persal"])
         self.assertEqual([len(s.tables) for s in sources], [17, 21, 6])
         self.assertEqual(
@@ -291,7 +291,7 @@ class ContractTests(unittest.TestCase):
         )
 
     def test_preserves_source_fields_and_schema_abbreviation(self) -> None:
-        sources = {source.code: source for source in load_sources(ROOT)}
+        sources = {source.code: source for source in load_sources(ROOT, "treasury")}
         self.assertEqual(sources["persal"].silver_schema, "slv_psl")
         employee = next(
             t for t in sources["persal"].tables if t["name"] == "t_employee"
@@ -321,7 +321,7 @@ class ContractTests(unittest.TestCase):
         )
 
     def test_runtime_contract_has_no_local_paths(self) -> None:
-        for source in load_sources(ROOT):
+        for source in load_sources(ROOT, "treasury"):
             config = source.runtime_config()
             self.assertEqual(config["source_code"], source.code)
             self.assertNotIn("schema_path", config)

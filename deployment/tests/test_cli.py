@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -12,6 +14,37 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class CliTests(unittest.TestCase):
+    def test_missing_or_unknown_case_fails_before_cloud_or_local_validation(self):
+        for selection in ([], ["--use-case", "unknown"]):
+            with (
+                self.subTest(selection=selection),
+                patch("sys.argv", ["deploy", "--validate-local", *selection]),
+                patch.object(cli, "repository_root", return_value=ROOT),
+                patch.object(cli, "AcceleratorDeployer") as deployer,
+                patch.object(cli, "validate_local") as validate,
+                self.assertLogs(cli.LOGGER, level="ERROR") as logged,
+            ):
+                self.assertEqual(cli.main(), 2)
+            self.assertIn(
+                "Unknown use case" if selection else "--use-case",
+                "\n".join(logged.output),
+            )
+            deployer.assert_not_called()
+            validate.assert_not_called()
+
+    def test_registered_case_selection_is_forwarded_without_fallback(self):
+        for case in ("inventory_example", "treasury"):
+            with (
+                self.subTest(case=case),
+                patch("sys.argv", ["deploy", "--validate-local", "--use-case", case]),
+                patch.object(cli, "repository_root", return_value=ROOT),
+                patch.object(cli, "validate_local") as validate,
+                patch.object(cli, "AcceleratorDeployer") as deployer,
+            ):
+                self.assertEqual(cli.main(), 0)
+            validate.assert_called_once_with(ROOT, use_case=case)
+            deployer.assert_not_called()
+
     def test_control_connection_and_journal_flags_are_explicit(self):
         args = cli.create_parser().parse_args(
             [
@@ -31,7 +64,14 @@ class CliTests(unittest.TestCase):
     def test_control_local_validation_never_constructs_a_cloud_deployer(self):
         with (
             patch(
-                "sys.argv", ["deploy", "--validate-local", "--bootstrap-orchestrator"]
+                "sys.argv",
+                [
+                    "deploy",
+                    "--use-case",
+                    "inventory_example",
+                    "--validate-local",
+                    "--bootstrap-orchestrator",
+                ],
             ),
             patch.object(cli, "repository_root", return_value=ROOT),
             patch.object(cli, "AcceleratorDeployer") as deployer,
@@ -65,7 +105,10 @@ class CliTests(unittest.TestCase):
         ):
             with (
                 self.subTest(arguments=arguments),
-                patch("sys.argv", ["deploy", *arguments]),
+                patch(
+                    "sys.argv",
+                    ["deploy", "--use-case", "inventory_example", *arguments],
+                ),
                 patch.object(cli, "repository_root", return_value=ROOT),
                 patch.object(cli, "AcceleratorDeployer") as deployer,
             ):
@@ -87,7 +130,17 @@ class CliTests(unittest.TestCase):
         self.assertEqual(args.state_file, Path("metadata.json"))
         self.assertTrue(args.resume)
         with (
-            patch("sys.argv", ["deploy", "--workspace", "test", "--dry-run"]),
+            patch(
+                "sys.argv",
+                [
+                    "deploy",
+                    "--use-case",
+                    "inventory_example",
+                    "--workspace",
+                    "test",
+                    "--dry-run",
+                ],
+            ),
             patch.object(cli, "repository_root", return_value=ROOT),
             patch.object(cli, "AcceleratorDeployer") as deployer,
         ):
@@ -103,6 +156,8 @@ class CliTests(unittest.TestCase):
                 "sys.argv",
                 [
                     "deploy",
+                    "--use-case",
+                    "inventory_example",
                     "--validate-local",
                     "--bootstrap-orchestrator",
                     "--metadata-assets",
@@ -115,7 +170,7 @@ class CliTests(unittest.TestCase):
         ):
             self.assertEqual(cli.main(), 0)
         deployer.assert_not_called()
-        legacy.assert_called_once_with(ROOT, use_case="treasury")
+        legacy.assert_called_once_with(ROOT, use_case="inventory_example")
         seed.assert_not_called()
 
     def test_metadata_state_resume_and_connections_are_forwarded(self):
@@ -124,6 +179,8 @@ class CliTests(unittest.TestCase):
                 "sys.argv",
                 [
                     "deploy",
+                    "--use-case",
+                    "inventory_example",
                     "--workspace",
                     "test",
                     "--bootstrap-orchestrator",
@@ -158,6 +215,8 @@ class CliTests(unittest.TestCase):
                 "sys.argv",
                 [
                     "deploy",
+                    "--use-case",
+                    "inventory_example",
                     "--workspace",
                     "test",
                     "--bootstrap-orchestrator",
@@ -175,6 +234,50 @@ class CliTests(unittest.TestCase):
         self.assertTrue(options.dry_run)
         self.assertFalse(options.interactive)
         self.assertIsNone(options.state_file)
+
+
+class EntrypointCaseSelectionTests(unittest.TestCase):
+    def test_operational_scripts_require_selection_and_reject_unknown_cases(self):
+        commands = (
+            ("specifications.py", ["validate"]),
+            ("build.py", ["--check"]),
+            ("deploy.py", ["--validate-local"]),
+            (
+                "configure.py",
+                [
+                    "preview",
+                    "--configuration",
+                    "unused.json",
+                    "--run-id",
+                    "test",
+                    "--observed-utc",
+                    "2026-11-09T08:00:00Z",
+                ],
+            ),
+            ("generate_fixtures.py", ["--validate-only"]),
+            ("validate_fixtures.py", []),
+        )
+        for script, arguments in commands:
+            for selection in ([], ["--use-case", "unknown"]):
+                with self.subTest(script=script, selection=selection):
+                    result = subprocess.run(
+                        [
+                            sys.executable,
+                            "-B",
+                            str(ROOT / "deployment" / script),
+                            *arguments,
+                            *selection,
+                        ],
+                        cwd=ROOT,
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(result.returncode, 2, result.stderr)
+                    self.assertIn(
+                        "Unknown use case" if selection else "--use-case",
+                        result.stderr,
+                    )
 
 
 if __name__ == "__main__":

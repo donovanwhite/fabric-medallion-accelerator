@@ -23,6 +23,10 @@ def _read(path: Path) -> dict[str, Any]:
 
 
 def selected_use_case_id(root: Path, use_case: str | None = None) -> str:
+    if not isinstance(use_case, str) or not use_case.strip():
+        raise ValueError(
+            "An explicit use-case selection is required; pass --use-case <id>."
+        )
     catalog = _read(root / "use_cases" / "catalog.json")
     if (
         set(catalog) != {"schema_version", "default_use_case", "use_cases"}
@@ -35,17 +39,15 @@ def selected_use_case_id(root: Path, use_case: str | None = None) -> str:
         or not cases
         or any(not isinstance(case, str) or not _CASE.fullmatch(case) for case in cases)
         or len(set(cases)) != len(cases)
-        or catalog["default_use_case"] not in cases
     ):
+        raise ValueError("Use-case catalog must declare distinct case IDs")
+    if catalog["default_use_case"] is not None:
+        raise ValueError("Use-case catalog default_use_case must be null")
+    if use_case not in cases:
         raise ValueError(
-            "Use-case catalog must declare distinct case IDs and a valid default"
+            f"Unknown use case: {use_case!r}; register its descriptor before generation"
         )
-    identity = use_case if use_case is not None else catalog["default_use_case"]
-    if identity not in cases:
-        raise ValueError(
-            f"Unknown use case: {identity!r}; register its descriptor before generation"
-        )
-    return identity
+    return use_case
 
 
 @dataclass(frozen=True)

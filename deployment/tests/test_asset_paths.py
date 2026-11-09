@@ -27,10 +27,13 @@ def declare_case(root: Path, case: str = "sample", **fields: object) -> dict:
     case_root = catalog / case
     case_root.mkdir(parents=True, exist_ok=True)
     (catalog / "catalog.json").write_text(
-        json.dumps({
-            "schema_version": 1, "default_use_case": case,
-            "use_cases": [case],
-        }),
+        json.dumps(
+            {
+                "schema_version": 1,
+                "default_use_case": None,
+                "use_cases": [case],
+            }
+        ),
         encoding="utf-8",
     )
     descriptor = {
@@ -65,10 +68,11 @@ class AssetPathTests(unittest.TestCase):
             root = Path(directory).resolve()
             declare_case(root, department_profile="fixtures/sample/roster.json")
             registry = root / "use_cases/sample/contracts/source_registry.json"
-            self.assertEqual(source_registry_path(root), registry)
-            self.assertEqual(source_registry_root(root), registry.parent)
+            self.assertEqual(source_registry_path(root, "sample"), registry)
+            self.assertEqual(source_registry_root(root, "sample"), registry.parent)
             self.assertEqual(
-                department_profile_path(root), root / "fixtures/sample/roster.json"
+                department_profile_path(root, "sample"),
+                root / "fixtures/sample/roster.json",
             )
             with self.assertRaisesRegex(ValueError, "Unknown use case"):
                 source_registry_path(root, "treasury")
@@ -78,7 +82,7 @@ class AssetPathTests(unittest.TestCase):
             tempfile.TemporaryDirectory() as directory,
             self.assertRaises(FileNotFoundError),
         ):
-            source_registry_path(Path(directory))
+            source_registry_path(Path(directory), "sample")
 
     def test_evidence_supports_only_declared_historical_locations(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -94,17 +98,17 @@ class AssetPathTests(unittest.TestCase):
             )
             legacy = root / "specifications"
             legacy.mkdir()
-            self.assertEqual(source_specifications_root(root), legacy)
+            self.assertEqual(source_specifications_root(root, "sample"), legacy)
             moved = root / canonical
             moved.mkdir()
             with self.assertRaisesRegex(ValueError, "Ambiguous"):
-                source_specifications_root(root)
+                source_specifications_root(root, "sample")
             legacy.rmdir()
-            self.assertEqual(source_specifications_root(root), moved)
+            self.assertEqual(source_specifications_root(root, "sample"), moved)
             another = root / "docs/specifications"
             another.mkdir(parents=True)
             with self.assertRaisesRegex(ValueError, "Ambiguous"):
-                source_specifications_root(root)
+                source_specifications_root(root, "sample")
 
     def test_aliases_preserve_logical_spelling_without_multiple_authorities(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -116,21 +120,21 @@ class AssetPathTests(unittest.TestCase):
             canonical.parent.mkdir(parents=True)
             canonical.write_text("{}")
             self.assertEqual(
-                resolve_asset_path(root, "old\\data\\schema.json"), canonical
+                resolve_asset_path(root, "old\\data\\schema.json", "sample"), canonical
             )
             legacy = root / "old/data/schema.json"
             legacy.parent.mkdir(parents=True)
             legacy.write_text("{}")
             for spelling in ("old/data/schema.json", "fixtures/sample/schema.json"):
                 with self.assertRaisesRegex(ValueError, "Ambiguous"):
-                    resolve_asset_path(root, spelling)
+                    resolve_asset_path(root, spelling, "sample")
 
     def test_paths_and_declared_alias_targets_cannot_escape_repository(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             declare_case(root, asset_aliases={"old": "../outside"})
             with self.assertRaisesRegex(ValueError, "escapes"):
-                resolve_asset_path(root, "old/schema.json")
+                resolve_asset_path(root, "old/schema.json", "sample")
             with self.assertRaisesRegex(ValueError, "escapes"):
                 local_asset_path(root, "../outside")
             for absolute in ("/outside", "C:\\outside"):
@@ -142,7 +146,7 @@ class AssetPathTests(unittest.TestCase):
             root = Path(directory).resolve()
             declare_case(root, asset_aliases={"old": "a", "old/data": "b"})
             with self.assertRaisesRegex(ValueError, "Ambiguous"):
-                resolve_asset_path(root, "old/data/schema.json")
+                resolve_asset_path(root, "old/data/schema.json", "sample")
 
     def test_descriptor_identity_and_explicit_selection_are_checked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -155,22 +159,24 @@ class AssetPathTests(unittest.TestCase):
             descriptor["id"] = "different"
             path.write_text(json.dumps(descriptor))
             with self.assertRaisesRegex(ValueError, "identity"):
-                use_case_descriptor(root)
+                use_case_descriptor(root, "sample")
 
-    def test_fixture_wrappers_keep_named_imports_without_business_implementations(self) -> None:
+    def test_fixture_wrappers_reject_implicit_named_imports(self) -> None:
         from deployment import generate_fixtures as generate
         from deployment import validate_fixtures as validate
-        from use_cases.treasury.fixtures import generate as treasury_generate
-        from use_cases.treasury.fixtures import validate as treasury_validate
 
-        self.assertIs(generate.bas_rows, treasury_generate.bas_rows)
-        self.assertIs(generate.csd_rows, treasury_generate.csd_rows)
-        self.assertIs(generate.persal_rows, treasury_generate.persal_rows)
-        self.assertIs(validate.validate_data, treasury_validate.validate_data)
-        self.assertIs(validate.validate_output, treasury_validate.validate_output)
-        self.assertIs(
-            generate.load_fixture_module(use_case="treasury"), treasury_generate
-        )
+        for module, name in (
+            (generate, "bas_rows"),
+            (generate, "csd_rows"),
+            (generate, "persal_rows"),
+            (validate, "validate_data"),
+            (validate, "validate_output"),
+        ):
+            with (
+                self.subTest(name=name),
+                self.assertRaisesRegex(ValueError, "explicit.*--use-case"),
+            ):
+                getattr(module, name)
         self.assertNotIn("bas_rows", vars(generate))
         self.assertNotIn("validate_data", vars(validate))
 
@@ -205,11 +211,16 @@ class AssetPathTests(unittest.TestCase):
                 sys.modules,
                 {"sample_fixture_builder": builder, "sample_fixture_validator": validator},
             ):
-                self.assertIs(load_fixture_module(root=root), builder)
-                self.assertIs(load_fixture_module("validator", root=root), validator)
+                self.assertIs(
+                    load_fixture_module(root=root, use_case="sample"), builder
+                )
+                self.assertIs(
+                    load_fixture_module("validator", root=root, use_case="sample"),
+                    validator,
+                )
                 validator.__file__ = builder.__file__
                 with self.assertRaisesRegex(ValueError, "differs from its declared asset"):
-                    load_fixture_module("validator", root=root)
+                    load_fixture_module("validator", root=root, use_case="sample")
             with self.assertRaisesRegex(ValueError, "Unknown fixture adapter role"):
                 load_fixture_module("unknown", root=root)
 
