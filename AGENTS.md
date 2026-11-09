@@ -55,7 +55,8 @@ Verify actual behavior against authoritative source code.
 Before planning or changing code, identify the applicable baseline
 requirements and architectural constraints.
 
-Use the repository task-to-code navigation index to locate:
+Use the [task-to-code navigation index](artefacts/README.md#task-to-code-navigation)
+to locate:
 
 - Relevant governing requirements.
 - Architectural boundaries.
@@ -136,11 +137,8 @@ Determine whether the task concerns:
 
 **Step 2 — Consult the navigation index**
 
-Use the existing task-to-code navigation index.
-
-> INDEX LOCATION:
-> Replace this placeholder with the verified repository-relative
-> path to the generated task-to-code navigation index.
+Use the existing
+[task-to-code navigation index](artefacts/README.md#task-to-code-navigation).
 
 Do not initiate broad repository discovery before consulting
 the index unless it is unavailable or demonstrably outdated.
@@ -673,7 +671,8 @@ For every development task:
 **Classify → Navigate → Verify → Configure → Implement → Validate → Update**
 
 1. **Classify** the task and identify the relevant architectural domain.
-2. **Navigate** using the verified task-to-code index.
+2. **Navigate** using the verified
+   [task-to-code navigation index](artefacts/README.md#task-to-code-navigation).
 3. **Verify** baseline requirements, contracts and authoritative implementation.
 4. **Configure** existing metadata or specifications where possible.
 5. **Implement** only the necessary changes.
